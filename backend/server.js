@@ -75,28 +75,18 @@ app.set('trust proxy', 1);
 // Security Middleware
 // ──────────────────────────────────────────────
 // Dynamic CORS & CSP whitelisting from Environment variables
-const allowedOrigins = [
-  'http://localhost:5000',
-  'http://localhost:5173',
-  'http://localhost:3000'
+const parseOriginList = (value = '') =>
+  [...new Set(value.split(',').map(origin => origin.trim()).filter(Boolean))];
+
+// Allowed browser origins must be explicitly configured in ALLOWED_ORIGINS.
+const allowedOrigins = parseOriginList(process.env.ALLOWED_ORIGINS);
+
+// CSP connect-src contains only this app and configured API/backend endpoints.
+const cspConnectSrc = [
+  "'self'",
+  ...parseOriginList(process.env.BACKEND_URL),
+  ...parseOriginList(process.env.CSP_CONNECT_SRC),
 ];
-
-if (process.env.ALLOWED_ORIGINS) {
-  const customOrigins = process.env.ALLOWED_ORIGINS.split(',').map(o => o.trim());
-  allowedOrigins.push(...customOrigins);
-}
-
-// Build CSP connect-src dynamically
-const cspConnectSrc = ["'self'", "http://localhost:5000", "http://localhost:5173"];
-if (process.env.BACKEND_URL) {
-  cspConnectSrc.push(process.env.BACKEND_URL);
-}
-// Add all allowed origins to CSP connect-src to permit client-server handshakes
-allowedOrigins.forEach(origin => {
-  if (!cspConnectSrc.includes(origin)) {
-    cspConnectSrc.push(origin);
-  }
-});
 
 app.use(helmet({
   crossOriginResourcePolicy: { policy: "cross-origin" },
@@ -118,12 +108,7 @@ app.use(helmet({
 
 app.use(cors({
   origin: function (origin, callback) {
-    const isLocal = origin && (
-      origin.startsWith('http://localhost:') || 
-      origin.startsWith('http://127.0.0.1:')
-    );
-    
-    if (!origin || isLocal || allowedOrigins.includes(origin)) {
+    if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
       callback(new Error(`CORS not allowed for origin: ${origin}`));
