@@ -1,0 +1,26 @@
+const schoolConfig = Object.freeze({
+  name: "AK Divine Public School",
+  displayName: "AK DIVINE PUBLIC SCHOOL",
+  shortName: "AK DIVINE",
+  erpName: "AK Divine Public School ERP",
+  erpSubtitle: "School Management System",
+  address: "Jagarnathpur, Near Afrad More, Siwan (Bihar)",
+  shortAddress: "Jagarnathpur, Siwan (Bihar)",
+  location: "Jagarnathpur",
+  phone: "7634006544, 8651916600",
+  primaryPhone: "7634006544",
+  secondaryPhone: "8651916600",
+  email: "",
+  website: "",
+  affiliation: "",
+  medium: "English Medium",
+  udise: "",
+  registrationNumber: "",
+  tagline: "शिक्षा जो बनाए उज्ज्वल भविष्य",
+  englishTagline: "Darkness to Light",
+  directorName: "Vikash Tiwari",
+  managerName: "Er. Rajesh Kumar Singh",
+  trustName: "AK SOCIO WELFARE FOUNDATION TRUST",
+});
+
+export default schoolConfig;

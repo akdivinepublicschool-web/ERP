@@ -1,0 +1,82 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# Dependencies
+node_modules/
+jspm_packages/
+.npm
+.yarn
+
+# Environment Variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Build Outputs (Frontend/Backend)
+dist/
+dist-ssr/
+build/
+out/
+.next/
+
+# Mobile (React Native/Expo) if present
+.expo/
+*.mobileprovision
+
+# Database/Uploads
+uploads/
+*.sqlite
+
+# OS Generated Files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE and Editors
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Coverage
+coverage/
+.nyc_output/
+
+# Cache
+.eslintcache
+.stylelintcache
+
+
+mobile_ui_snippets/
+my-app/
+output.log
+output.txt
+ver_out.txt
+check_students_diag.js
+# Never publish local environment files
+**/.env*
+!**/.env.example
+
+# Local institute settings backup
+backend/ak-divine-institute-settings-backup-before-poster-update.json
+
+
+# Vite cache
+frontend/.vite/
+
+
+# Local maintenance scripts may contain test credentials or destructive actions
+backend/scripts/debug-users.js
+backend/scripts/seed-admin.js
+
