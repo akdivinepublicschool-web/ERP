@@ -80,3 +80,9 @@ frontend/.vite/
 backend/scripts/debug-users.js
 backend/scripts/seed-admin.js
 
+
+# Local diagnostic scripts
+backend/services/debug_ensure_ledger.js
+backend/services/run_get_details.js
+backend/services/sync_and_inspect_students.js
+
