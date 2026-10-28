@@ -809,7 +809,7 @@ const FeeCollection = () => {
           {/* Card 1: Total Students */}
           <div className="bg-white rounded-2xl border border-zinc-200/80 p-5 sm:p-6 flex items-center justify-between shadow-sm hover:shadow-md hover:translate-y-[-2px] transition-all duration-300 group">
             <div className="space-y-1 sm:space-y-2">
-              <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">≡ƒæ¿ΓÇì≡ƒÄô Total Students</span>
+              <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Total Students</span>
               <h3 className="text-xl sm:text-2xl font-black text-orange-500">
                 {kpiStats.totalStudents} <span className="text-xs text-zinc-450 font-bold">Students</span>
               </h3>
@@ -825,7 +825,7 @@ const FeeCollection = () => {
           {/* Card 2: Current Month Due */}
           <div className="bg-white rounded-2xl border border-zinc-200/80 p-5 sm:p-6 flex items-center justify-between shadow-sm hover:shadow-md hover:translate-y-[-2px] transition-all duration-300 group">
             <div className="space-y-1 sm:space-y-2">
-              <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">≡ƒÆ░ Current Month Due</span>
+              <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Current Month Due</span>
               <h3 className="text-xl sm:text-2xl font-black text-red-505">
                 {kpiStats.dueStudents} <span className="text-xs text-zinc-450 font-bold">Students</span>
               </h3>
@@ -839,7 +839,7 @@ const FeeCollection = () => {
           {/* Card 3: Current Month Paid */}
           <div className="bg-white rounded-2xl border border-zinc-200/80 p-5 sm:p-6 flex items-center justify-between shadow-sm hover:shadow-md hover:translate-y-[-2px] transition-all duration-300 group">
             <div className="space-y-1 sm:space-y-2">
-              <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Γ£à Current Month Paid</span>
+              <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Current Month Paid</span>
               <h3 className="text-xl sm:text-2xl font-black text-emerald-650">
                 {kpiStats.paidStudents} <span className="text-xs text-zinc-450 font-bold">Students</span>
               </h3>
@@ -853,7 +853,7 @@ const FeeCollection = () => {
           {/* Card 4: Current Month Collection */}
           <div className="bg-white rounded-2xl border border-zinc-200/80 p-5 sm:p-6 flex items-center justify-between shadow-sm hover:shadow-md hover:translate-y-[-2px] transition-all duration-300 group">
             <div className="space-y-1 sm:space-y-2">
-              <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Γé╣ Monthly Collection</span>
+              <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Monthly Collection</span>
               <h3 className="text-xl sm:text-2xl font-black text-blue-600">
                 {formatToINR(kpiStats.collection)}
               </h3>
@@ -1145,7 +1145,7 @@ const FeeCollection = () => {
                                       )}
                                     </td>
                                     <td className="py-3.5 px-3 text-zinc-900 font-bold">
-                                      {isPending ? formatToINR(isPending.pendingAmount) : "Γé╣0"}
+                                      {isPending ? formatToINR(isPending.pendingAmount) : "₹0"}
                                     </td>
                                     <td className="py-3.5 px-3 text-right">
                                       <button
@@ -1230,7 +1230,7 @@ const FeeCollection = () => {
                                   </div>
                                   <div className="flex justify-between items-center pt-2 border-t border-zinc-100 text-[10px] font-bold">
                                     <span className="text-zinc-400 uppercase tracking-wider">Pending Amount:</span>
-                                    <span className="text-zinc-900 font-extrabold">{isPending ? formatToINR(isPending.pendingAmount) : "Γé╣0"}</span>
+                                    <span className="text-zinc-900 font-extrabold">{isPending ? formatToINR(isPending.pendingAmount) : "₹0"}</span>
                                   </div>
                                   <button
                                     type="button"
@@ -1468,7 +1468,7 @@ const FeeCollection = () => {
                             <span className="text-zinc-400 font-bold uppercase tracking-tight">Transport Fee Base</span>
                             {isEditingTransportFee ? (
                               <div className="flex items-center gap-1.5">
-                                <span className="text-zinc-400 font-black">Γé╣</span>
+                                <span className="text-zinc-400 font-black">₹</span>
                                 <input
                                   type="number"
                                   value={tempTransportFee}
@@ -1750,7 +1750,7 @@ const FeeCollection = () => {
                             className="w-4 h-4 text-orange-500 border-zinc-300 rounded focus:ring-orange-500 cursor-pointer accent-orange-500"
                           />
                           <label htmlFor="include-transport-checkbox" className="text-xs font-bold text-zinc-700 cursor-pointer select-none">
-                            Include Transport Fee <span className="text-orange-600 font-black">(Γé╣{student.transportFee !== undefined && student.transportFee !== null ? student.transportFee : 500} / Month)</span>
+                            Include Transport Fee <span className="text-orange-600 font-black">(₹{student.transportFee !== undefined && student.transportFee !== null ? student.transportFee : 500} / Month)</span>
                           </label>
                         </div>
                       )}
@@ -1782,7 +1782,7 @@ const FeeCollection = () => {
                                     {cf.remarks && <p className="text-[9px] text-zinc-400 italic">{cf.remarks}</p>}
                                   </div>
                                 </div>
-                                <span className="text-xs font-black text-orange-600">Γé╣{cf.pending}</span>
+                                <span className="text-xs font-black text-orange-600">₹{cf.pending}</span>
                               </div>
                             ))}
                           </div>
@@ -1796,7 +1796,7 @@ const FeeCollection = () => {
                         <div className="space-y-1.5">
                           <label className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest ml-1">Collection Value *</label>
                           <div className="relative">
-                            <span className="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-zinc-400 text-xs">Γé╣</span>
+                            <span className="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-zinc-400 text-xs">₹</span>
                             <input
                               type="number"
                               value={amount}
@@ -2043,7 +2043,7 @@ const FeeCollection = () => {
 
           <div className="space-y-1.5">
             <label className="text-xs font-bold text-zinc-600 uppercase tracking-wider block">
-              Amount (Γé╣) *
+              Amount (₹) *
             </label>
             <input
               type="number"

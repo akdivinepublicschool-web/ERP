@@ -1,12 +1,17 @@
 
 require('dotenv').config({ path: require('path').join(__dirname, '../.env') });
 
+const dns = require('dns');
+dns.setServers(['8.8.8.8', '1.1.1.1']);
+
 const mongoose = require('mongoose');
 const User = require('../models/User');
 
 async function createAdmin() {
   try {
-    await mongoose.connect(process.env.MONGO_URI);
+    const targetDb = process.env.MONGO_DB_NAME || undefined;
+    await mongoose.connect(process.env.MONGO_URI, targetDb ? { dbName: targetDb } : {});
+    console.log('Connected database:', mongoose.connection.name);
 
     const email = 'erpadmin@akdivine.com';
 
