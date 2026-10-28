@@ -1,0 +1,833 @@
+@font-face {
+  font-family: "LFESSchoolTitle";
+  src: url("../../assets/fonts/UnifrakturMaguntia-Book.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+}
+
+:root {
+  --lfes-navy: #08295b;
+  --lfes-gold: #d5a11e;
+  --lfes-line: #8fb4d6;
+  --lfes-pale: #eef6fb;
+  --lfes-paper: #fffefa;
+}
+
+.marksheet-document,
+.marksheet-document * {
+  box-sizing: border-box;
+}
+
+.marksheet-document {
+  width: 210mm;
+  height: 297mm;
+  min-width: 210mm;
+  min-height: 297mm;
+  max-width: 210mm;
+  max-height: 297mm;
+  flex: 0 0 auto;
+  margin: 0 auto;
+  background: var(--lfes-paper);
+  color: var(--lfes-navy);
+  position: relative;
+  overflow: hidden;
+  font-family: "Playfair Display", Georgia, "Times New Roman", serif;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+
+  /* Shared adaptive vertical-density variables. */
+  --student-gap: 3.1mm;
+  --student-padding-y: 2.8mm;
+  --student-min-height: 28.5mm;
+  --student-row-height: 5.55mm;
+  --table-gap: 3.2mm;
+  --table-head-height: 11.5mm;
+  --table-row-height: 6.8mm;
+  --table-total-height: 7.4mm;
+  --table-cell-pad-y: 0.55mm;
+  --summary-gap: 3.2mm;
+  --summary-min-height: 17.8mm;
+  --summary-pad-top: 2.4mm;
+  --summary-pad-bottom: 2.1mm;
+  --remarks-gap: 3.2mm;
+  --signature-gap: 4.8mm;
+  --signature-space-height: 6.5mm;
+  --footer-min-height: 11.5mm;
+}
+
+/* 6ΓÇô7 subjects: reduce non-essential vertical whitespace first. */
+.marksheet-document.marksheet-density--compact {
+  --student-gap: 2.5mm;
+  --student-padding-y: 2.3mm;
+  --student-min-height: 26mm;
+  --student-row-height: 5mm;
+  --table-gap: 2.5mm;
+  --table-head-height: 10.5mm;
+  --table-row-height: 5.7mm;
+  --table-total-height: 6.6mm;
+  --table-cell-pad-y: 0.35mm;
+  --summary-gap: 2.5mm;
+  --summary-min-height: 16.5mm;
+  --summary-pad-top: 2mm;
+  --summary-pad-bottom: 1.8mm;
+  --remarks-gap: 2.5mm;
+  --signature-gap: 3.5mm;
+  --signature-space-height: 5.2mm;
+  --footer-min-height: 10.5mm;
+}
+
+/* 8+ subjects: denser but still print-readable. */
+.marksheet-document.marksheet-density--dense {
+  --student-gap: 2mm;
+  --student-padding-y: 2mm;
+  --student-min-height: 24.5mm;
+  --student-row-height: 4.65mm;
+  --table-gap: 2mm;
+  --table-head-height: 9.6mm;
+  --table-row-height: 4.8mm;
+  --table-total-height: 5.8mm;
+  --table-cell-pad-y: 0.2mm;
+  --summary-gap: 2mm;
+  --summary-min-height: 15.2mm;
+  --summary-pad-top: 1.7mm;
+  --summary-pad-bottom: 1.5mm;
+  --remarks-gap: 2mm;
+  --signature-gap: 2.8mm;
+  --signature-space-height: 4.2mm;
+  --footer-min-height: 9.8mm;
+}
+
+.certificate-border {
+  position: absolute;
+  inset: 0;
+  width: 210mm;
+  height: 297mm;
+  object-fit: fill;
+  z-index: 3;
+  pointer-events: none;
+  display: block;
+  user-select: none;
+}
+
+.marksheet-document__content {
+  /*
+   * SINGLE A4 SAFE AREA ΓÇö source of truth for every normal marksheet section.
+   * The PNG border was measured at 1055x1491:
+   *   top inner rule Γëê y 65ΓÇô67px  => ~13.0mm from the A4 edge
+   *   side inner rule Γëê x 54ΓÇô60px => ~11.0ΓÇô12.0mm from the A4 edge
+   * We keep ~4ΓÇô6mm visual clearance inside those rules.
+   */
+  position: absolute;
+  inset: 18mm 16mm 16mm;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  z-index: 4;
+}
+
+.marksheet-meta {
+  width: 100%;
+  flex-shrink: 0;
+  max-width: 100%;
+  min-width: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8mm;
+  font-size: 12.8pt;
+  line-height: 1.1;
+  font-weight: 600;
+  /* Extra corner-exclusion zone for the wider top ornaments. */
+  padding: 0 6mm;
+  min-height: 6.4mm;
+}
+
+.marksheet-meta > span {
+  min-width: 0;
+  white-space: nowrap;
+}
+
+.marksheet-meta > span:last-child {
+  text-align: right;
+}
+
+.marksheet-logo-row {
+  display: flex;
+  flex-shrink: 0;
+  justify-content: center;
+  margin-top: -1.2mm;
+}
+
+.marksheet-logo {
+  width: 35mm;
+  height: 35mm;
+  object-fit: contain;
+  display: block;
+}
+
+.marksheet-school-name-wrap {
+  width: 100%;
+  flex-shrink: 0;
+  max-width: 100%;
+  min-width: 0;
+  margin: 0.2mm 0 -1.2mm;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  line-height: 0;
+  overflow: hidden;
+}
+
+.marksheet-school-name-image {
+  display: block;
+  width: min(100%, 185mm);
+  max-width: 100%;
+  height: auto;
+  object-fit: contain;
+  object-position: center;
+  user-select: none;
+  margin-top: -20mm;
+  margin-bottom: -20mm;
+}
+
+.marksheet-location {
+  flex-shrink: 0;
+  margin: 1.2mm 0 0;
+  text-align: center;
+  font-size: 14pt;
+  line-height: 1;
+  font-weight: 700;
+  letter-spacing: 0.75mm;
+}
+
+.marksheet-motto-row {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  margin: 2.9mm auto 0;
+  width: 78%;
+}
+
+.marksheet-motto-line {
+  height: 0.2mm;
+  background: var(--lfes-gold);
+  flex: 1;
+}
+
+.marksheet-motto-box {
+  min-width: 55mm;
+  height: 9.4mm;
+  padding: 0 5mm;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--lfes-navy);
+  border: 0.18mm solid #164477;
+  color: var(--lfes-gold);
+  font-family: "Noto Serif Devanagari", "Nirmala UI", "Mangal", serif;
+  font-size: 12.5pt;
+  line-height: 1;
+  font-weight: 700;
+  letter-spacing: 0.12mm;
+}
+
+.exam-heading-wrap {
+  flex-shrink: 0;
+  margin: 3.4mm auto 0;
+  width: 56%;
+}
+
+.exam-title-frame {
+  position: relative;
+  height: 11.8mm;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f3f8fc;
+  color: var(--lfes-navy);
+  clip-path: polygon(3.5% 0, 96.5% 0, 98% 16%, 100% 26%, 100% 74%, 98% 84%, 96.5% 100%, 3.5% 100%, 2% 84%, 0 74%, 0 26%, 2% 16%);
+}
+
+.exam-title-frame::before,
+.exam-title-frame::after {
+  content: "";
+  position: absolute;
+  inset: 0.55mm 0.65mm;
+  clip-path: inherit;
+  border: 0.24mm solid var(--lfes-navy);
+  pointer-events: none;
+}
+
+.exam-title-frame::after {
+  inset: 1.25mm 1.4mm;
+  border-width: 0.13mm;
+}
+
+.exam-title-text {
+  position: relative;
+  z-index: 1;
+  font-size: 16.4pt;
+  line-height: 1;
+  font-weight: 800;
+  letter-spacing: 0.28mm;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.marksheet-session {
+  flex-shrink: 0;
+  margin-top: 1.9mm;
+  text-align: center;
+  font-size: 10.8pt;
+  font-weight: 700;
+  letter-spacing: 0.5mm;
+  line-height: 1;
+}
+
+.student-info-box {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  margin-top: var(--student-gap);
+  border: 0.18mm solid #9bc0dd;
+  border-radius: 2mm;
+  padding: var(--student-padding-y) 3.7mm;
+  display: grid;
+  grid-template-columns: minmax(0, 63%) minmax(0, 37%);
+  min-height: var(--student-min-height);
+  background: #fff;
+  flex-shrink: 0;
+}
+
+.student-info-left,
+.student-info-right {
+  min-width: 0;
+}
+
+.student-info-left {
+  padding-right: 4.5mm;
+}
+
+.student-info-right {
+  padding-left: 5mm;
+  border-left: 0.18mm solid #7fa9cd;
+}
+
+.student-info-row {
+  min-height: var(--student-row-height);
+  display: grid;
+  grid-template-columns: 31mm 4.8mm minmax(0, 1fr);
+  align-items: end;
+  font-size: 9.9pt;
+  line-height: 1.05;
+}
+
+.student-info-right .student-info-row {
+  grid-template-columns: 17mm 4.8mm minmax(0, 1fr);
+}
+
+.student-info-label {
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.student-info-colon {
+  text-align: center;
+  font-weight: 700;
+}
+
+.student-info-value {
+  min-width: 0;
+  min-height: 4.5mm;
+  padding: 0 0.9mm 0.65mm;
+  border-bottom: 0.14mm solid #bfd1e0;
+  font-weight: 700;
+  color: #0b2858;
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
+}
+
+.student-info-value--address {
+  font-size: 9.2pt;
+  line-height: 1.05;
+}
+
+.marksheet-table-wrap {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  height: auto;
+  max-height: none;
+  margin-top: var(--table-gap);
+  overflow: visible;
+  flex-shrink: 0;
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+.marksheet-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  font-family: "Playfair Display", Georgia, "Times New Roman", serif;
+  color: var(--lfes-navy);
+  border: 0.2mm solid #5f86ad;
+}
+
+.marksheet-table th,
+.marksheet-table td {
+  border: 0.16mm solid #7ea1c2;
+  vertical-align: middle;
+}
+
+.marksheet-table th {
+  height: var(--table-head-height);
+  padding: var(--table-cell-pad-y) 1mm;
+  background: #edf5fb;
+  text-align: center;
+  font-size: 9pt;
+  line-height: 1.13;
+  font-weight: 800;
+}
+
+.marksheet-table td {
+  height: var(--table-row-height);
+  padding: var(--table-cell-pad-y) 1.5mm;
+  background: rgba(255,255,255,0.98);
+  font-size: 9.8pt;
+  line-height: 1.05;
+  font-weight: 600;
+}
+
+.marksheet-table td:not(.subject-cell) {
+  text-align: center;
+}
+
+.marksheet-table .subject-cell {
+  text-align: left;
+  font-weight: 700;
+  padding-left: 3.8mm;
+}
+
+.marksheet-table .total-row td {
+  height: var(--table-total-height);
+  background: #edf5fb;
+  font-weight: 800;
+  font-size: 10.2pt;
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+.marksheet-density--compact .marksheet-table td {
+  font-size: 9.3pt;
+}
+
+.marksheet-density--compact .marksheet-table .total-row td {
+  font-size: 9.8pt;
+}
+
+.marksheet-density--dense .marksheet-table th {
+  font-size: 8.4pt;
+  line-height: 1.05;
+}
+
+.marksheet-density--dense .marksheet-table td {
+  font-size: 8.8pt;
+  line-height: 1;
+}
+
+.marksheet-density--dense .marksheet-table .total-row td {
+  font-size: 9.2pt;
+}
+
+.marksheet-density--dense .marksheet-table .subject-cell {
+  padding-left: 2.4mm;
+}
+
+.result-summary {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  margin-top: var(--summary-gap);
+  min-height: var(--summary-min-height);
+  flex-shrink: 0;
+  break-inside: avoid;
+  page-break-inside: avoid;
+  border: 0.18mm solid #9bc0dd;
+  border-radius: 1.8mm;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  align-items: stretch;
+  background: #fff;
+}
+
+.result-summary-item {
+  position: relative;
+  padding: var(--summary-pad-top) 2mm var(--summary-pad-bottom);
+  text-align: center;
+}
+
+.result-summary-item + .result-summary-item::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 3.6mm;
+  bottom: 3.6mm;
+  width: 0.16mm;
+  background: #7fa9cd;
+}
+
+.result-summary-label {
+  display: block;
+  font-size: 8.8pt;
+  line-height: 1.05;
+  font-weight: 800;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.result-summary-value {
+  display: block;
+  margin-top: 2mm;
+  font-size: 16.3pt;
+  line-height: 1;
+  font-weight: 800;
+}
+
+.marksheet-remarks {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 2.2mm;
+  align-items: end;
+  margin-top: var(--remarks-gap);
+  flex-shrink: 0;
+  padding: 0 0.6mm;
+  font-size: 9.4pt;
+  font-weight: 800;
+}
+
+.marksheet-remarks-line {
+  min-width: 0;
+  min-height: 4.5mm;
+  border-bottom: 0.16mm dotted #6e9ac3;
+  font-size: 8.8pt;
+  font-weight: 600;
+  line-height: 1.15;
+  padding: 0 1mm 0.7mm;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.signature-area {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  margin-top: var(--signature-gap);
+  flex-shrink: 0;
+  break-inside: avoid;
+  page-break-inside: avoid;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12mm;
+  padding: 0 3mm;
+  text-align: center;
+  margin-top: 20mm;
+}
+
+.signature-block {
+  min-width: 0;
+}
+
+.signature-space {
+  height: var(--signature-space-height);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 0.8mm;
+}
+
+.signature-line {
+  border-top: 0.18mm solid #315f91;
+  padding-top: 1.5mm;
+  min-height: 7mm;
+  font-size: 9.6pt;
+  line-height: 1.05;
+  font-weight: 600;
+}
+
+.signature-person-name,
+.signature-director-name {
+  display: block;
+  max-width: 100%;
+  font-size: 11.3pt;
+  font-weight: 800;
+  margin-bottom: 0.6mm;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  line-height: 1.05;
+}
+
+.signature-role {
+  display: block;
+}
+
+.marksheet-footer {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  margin-top: auto;
+  position: relative;
+  min-height: var(--footer-min-height);
+  flex-shrink: 0;
+  text-align: center;
+}
+
+.footer-ornament {
+  width: 16mm;
+  height: 4.5mm;
+  color: var(--lfes-navy);
+  display: block;
+  margin: 0 auto 0.7mm;
+}
+
+.marksheet-website {
+  font-size: 8.8pt;
+  line-height: 1;
+  font-weight: 600;
+}
+
+.marksheet-slogan {
+  position: absolute;
+  right: 8mm;
+  bottom: 0.4mm;
+  font-size: 7.2pt;
+  font-weight: 700;
+  letter-spacing: 0.18mm;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+@media screen and (max-width: 860px) {
+  .marksheet-preview-scale {
+    width: 210mm;
+    transform-origin: top left;
+  }
+}
+
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 0;
+  }
+
+  html,
+  body {
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #fff !important;
+  }
+
+  .marksheet-document {
+    width: 210mm !important;
+    height: 297mm !important;
+    min-width: 210mm !important;
+    min-height: 297mm !important;
+    margin: 0 !important;
+    break-after: page;
+    page-break-after: always;
+  }
+
+  .marksheet-document:last-child {
+    break-after: auto;
+    page-break-after: auto;
+  }
+}
+
+/* Dedicated PDF source: fixed A4, off-screen, never transformed by the
+   responsive preview. It must remain laid out/renderable for html2canvas, so
+   do not use display:none / visibility:hidden / opacity:0 here. */
+.marksheet-pdf-render-host {
+  position: fixed;
+  top: 0;
+  left: -10000px;
+  width: 210mm;
+  height: 297mm;
+  min-width: 210mm;
+  min-height: 297mm;
+  overflow: visible;
+  pointer-events: none;
+  background: #fff;
+}
+
+.marksheet-pdf-render-host .marksheet-document {
+  width: 210mm !important;
+  height: 297mm !important;
+  min-width: 210mm !important;
+  min-height: 297mm !important;
+  max-width: 210mm !important;
+  margin: 0 !important;
+  transform: none !important;
+  zoom: 1 !important;
+}
+
+/* Responsive preview shell only. The official .marksheet-document remains fixed A4. */
+.marksheet-preview-viewport {
+  width: 100%;
+  overflow-x: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 6px 0 12px;
+}
+
+.marksheet-preview-stage {
+  position: relative;
+  flex: 0 0 auto;
+}
+
+.marksheet-preview-transform {
+  width: 210mm;
+  height: 297mm;
+  transform-origin: top left;
+  will-change: transform;
+}
+
+.marksheet-preview-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 13px 18px;
+}
+
+.marksheet-preview-toolbar__title {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1 1 auto;
+}
+
+.marksheet-preview-toolbar__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 0 0 auto;
+}
+
+.marksheet-preview-action {
+  min-height: 34px;
+  padding: 7px 11px;
+  border-radius: 11px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 12px;
+  line-height: 1;
+  font-weight: 800;
+  cursor: pointer;
+  transition: transform 120ms ease, background-color 120ms ease, opacity 120ms ease;
+}
+
+.marksheet-preview-action:active {
+  transform: scale(0.96);
+}
+
+.marksheet-preview-action:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.marksheet-preview-action--secondary {
+  color: #fff;
+  background: rgba(255,255,255,0.10);
+}
+
+.marksheet-preview-action--secondary:hover {
+  background: rgba(255,255,255,0.18);
+}
+
+.marksheet-preview-action--download {
+  background: #fbbf24;
+  color: #172033;
+}
+
+.marksheet-preview-action--download:hover {
+  background: #f59e0b;
+}
+
+.marksheet-preview-action--print {
+  background: #4f46e5;
+  color: #fff;
+}
+
+.marksheet-preview-action--print:hover {
+  background: #4338ca;
+}
+
+.marksheet-preview-action--close {
+  background: #e11d48;
+  color: #fff;
+}
+
+.marksheet-preview-action--close:hover {
+  background: #be123c;
+}
+
+@media screen and (max-width: 640px) {
+  .marksheet-preview-toolbar {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 8px;
+    padding: 10px 10px 9px;
+  }
+
+  .marksheet-preview-toolbar__title {
+    padding: 0 2px;
+  }
+
+  .marksheet-preview-toolbar__actions {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 38px minmax(0, 1fr) 38px 38px;
+    gap: 7px;
+  }
+
+  .marksheet-preview-action {
+    width: 100%;
+    min-height: 38px;
+    padding: 8px;
+    border-radius: 10px;
+  }
+
+  .marksheet-preview-action--download {
+    padding-inline: 10px;
+  }
+
+  .marksheet-preview-viewport {
+    padding: 8px 0 20px;
+  }
+}
+
+@media print {
+  .marksheet-pdf-render-host {
+    display: none !important;
+  }
+
+  .marksheet-preview-viewport,
+  .marksheet-preview-stage,
+  .marksheet-preview-transform {
+    width: 210mm !important;
+    height: 297mm !important;
+    overflow: visible !important;
+    transform: none !important;
+    padding: 0 !important;
+  }
+}

@@ -1,9 +1,15 @@
 import axios from 'axios';
 
+const apiBaseURL = import.meta.env.VITE_API_BASE_URL?.trim();
+
+if (!apiBaseURL) {
+  throw new Error('VITE_API_BASE_URL is missing. Configure the frontend environment before starting the app.');
+}
+
 let abortController = new AbortController();
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api',
+  baseURL: apiBaseURL,
   headers: {
     'Content-Type': 'application/json',
   },
