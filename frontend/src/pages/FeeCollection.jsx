@@ -889,10 +889,10 @@ const FeeCollection = () => {
             "lg:col-span-3 space-y-6 transition-all duration-300",
             isMobileFilterOpen ? "block" : "hidden lg:block"
           )}>
-            {/* ΓöÇΓöÇ LOOKUP CONTROLLER CARD ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ */}
+            {/* ── LOOKUP CONTROLLER CARD ─────────────────────────────── */}
             <div className="bg-white rounded-[20px] border border-zinc-200/70 shadow-sm p-5 space-y-5">
 
-              {/* ΓöÇΓöÇ Header ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ */}
+              {/* ── Header ─────────────────────────────────────────────── */}
               <div className="flex items-center gap-3 pb-4 border-b border-zinc-100/80">
                 <div className="w-9 h-9 bg-orange-50 rounded-[10px] flex items-center justify-center text-orange-500 shadow-inner shrink-0">
                   <Filter size={16} />
@@ -907,7 +907,7 @@ const FeeCollection = () => {
                 </div>
               </div>
 
-              {/* ΓöÇΓöÇ Academic Class Dropdown ΓÇö AppCombobox ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ */}
+              {/* ── Academic Class Dropdown — AppCombobox ─────────────── */}
               <AppCombobox
                 label="Academic Class"
                 placeholder="Select Class Group"
@@ -922,7 +922,7 @@ const FeeCollection = () => {
                 }))}
               />
 
-              {/* ΓöÇΓöÇ Search Student Input ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ */}
+              {/* ── Search Student Input ─────────────────────────────────── */}
               <div className="space-y-1.5">
                 <label className="text-[10px] font-semibold text-zinc-400 uppercase tracking-widest ml-0.5">
                   Search Student
@@ -946,7 +946,7 @@ const FeeCollection = () => {
                 </p>
               </div>
 
-              {/* ΓöÇΓöÇ Process Billing Button ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ */}
+              {/* ── Process Billing Button ───────────────────────────────── */}
               <div className="pt-1">
                 <Button
                   onClick={handleSearch}
@@ -1732,7 +1732,7 @@ const FeeCollection = () => {
                               <span>{m.month.substring(0, 3)}</span>
                               {m.status === "PAID" && (
                                 <span className="absolute -top-1 -right-1 bg-emerald-600 text-white w-4 h-4 rounded-full flex items-center justify-center border border-white text-[8px]">
-                                  Γ£ô
+                                  ✓
                                 </span>
                               )}
                             </button>

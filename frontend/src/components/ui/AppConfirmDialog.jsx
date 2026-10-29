@@ -5,7 +5,7 @@ import { cn } from "../../utils/cn";
 import AppButton from "./AppButton";
 
 /**
- * AppConfirmDialog ΓÇö Enterprise confirmation dialog for Delete, Transfer, Promote, Reset, Logout actions.
+ * AppConfirmDialog — Enterprise confirmation dialog for Delete, Transfer, Promote, Reset, Logout actions.
  */
 export const AppConfirmDialog = ({
   isOpen = false,
@@ -79,7 +79,7 @@ export const AppConfirmDialog = ({
 };
 
 /**
- * AppSuccessDialog ΓÇö Celebratory modal for Admission Completed, Fee Paid, Transfer Success, etc.
+ * AppSuccessDialog — Celebratory modal for Admission Completed, Fee Paid, Transfer Success, etc.
  */
 export const AppSuccessDialog = ({
   isOpen = false,

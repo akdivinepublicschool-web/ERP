@@ -4,7 +4,7 @@ import AppButton from "./AppButton";
 import AppIconButton from "./AppIconButton";
 
 /**
- * AppCopyButton ΓÇö Copies text to clipboard with success checkmark animation.
+ * AppCopyButton — Copies text to clipboard with success checkmark animation.
  */
 export const AppCopyButton = ({ text, label = "Copy", iconOnly = false, size = "sm" }) => {
   const [copied, setCopied] = useState(false);
@@ -43,7 +43,7 @@ export const AppCopyButton = ({ text, label = "Copy", iconOnly = false, size = "
 };
 
 /**
- * AppDownloadButton ΓÇö Download action button.
+ * AppDownloadButton — Download action button.
  */
 export const AppDownloadButton = ({ onClick, label = "Export", loading = false, size = "sm", iconOnly = false }) => {
   if (iconOnly) {
@@ -57,7 +57,7 @@ export const AppDownloadButton = ({ onClick, label = "Export", loading = false, 
 };
 
 /**
- * AppPrintButton ΓÇö Print action button.
+ * AppPrintButton — Print action button.
  */
 export const AppPrintButton = ({ onClick, label = "Print", size = "sm", iconOnly = false }) => {
   if (iconOnly) {
@@ -71,7 +71,7 @@ export const AppPrintButton = ({ onClick, label = "Print", size = "sm", iconOnly
 };
 
 /**
- * AppRefreshButton ΓÇö Refresh data action button.
+ * AppRefreshButton — Refresh data action button.
  */
 export const AppRefreshButton = ({ onClick, loading = false, size = "sm", iconOnly = true }) => {
   if (iconOnly) {
@@ -85,7 +85,7 @@ export const AppRefreshButton = ({ onClick, loading = false, size = "sm", iconOn
 };
 
 /**
- * AppBackButton ΓÇö Navigation back button.
+ * AppBackButton — Navigation back button.
  */
 export const AppBackButton = ({ onClick, label = "Back", size = "sm" }) => {
   return (

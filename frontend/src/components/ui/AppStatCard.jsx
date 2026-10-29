@@ -3,7 +3,7 @@ import { cn } from "../../utils/cn";
 import { TrendingUp, TrendingDown } from "lucide-react";
 
 /**
- * AppStatCard ΓÇö Enterprise Metric / KPI display card with title, primary value, trend badge, icon badge, & sub-label.
+ * AppStatCard — Enterprise Metric / KPI display card with title, primary value, trend badge, icon badge, & sub-label.
  */
 export const AppStatCard = ({
   title,

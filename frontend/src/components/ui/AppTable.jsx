@@ -17,7 +17,7 @@ import AppButton from "./AppButton";
 import AppSearch from "./AppSearch";
 
 /**
- * AppTable ΓÇö Reusable Enterprise Table Component.
+ * AppTable — Reusable Enterprise Table Component.
  * Features sticky header, sorting, search filter, column customization, row selection, bulk actions, pagination, skeleton, and empty state.
  */
 export const AppTable = ({

@@ -216,13 +216,13 @@ const TeacherManagement = () => {
     }
   };
 
-  // ΓöÇΓöÇ Online presence helpers
+  // ── Online presence helpers
   const getOnlineStatus = (userObj) => {
     if (!userObj) return { online: false, lastSeenText: null };
     if (!userObj.isOnline) {
       return { online: false, lastSeenText: userObj.lastSeen ? getLastSeenText(userObj.lastSeen) : null };
     }
-    // isOnline=true ΓÇö verify lastSeen is recent (within 5 minutes)
+    // isOnline=true — verify lastSeen is recent (within 5 minutes)
     const diff = userObj.lastSeen ? Date.now() - new Date(userObj.lastSeen).getTime() : Infinity;
     if (diff > 5 * 60 * 1000) {
       return { online: false, lastSeenText: getLastSeenText(userObj.lastSeen) };
@@ -439,7 +439,7 @@ const TeacherManagement = () => {
                       </button>
                     </td>
 
-                    {/* ΓöÇΓöÇ Real-time Online Presence */}
+                    {/* ── Real-time Online Presence */}
                     <td className="px-8 py-5">
                       <div className="flex flex-col gap-1">
                         <span

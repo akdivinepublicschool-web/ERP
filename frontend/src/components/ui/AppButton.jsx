@@ -3,7 +3,7 @@ import { cn } from "../../utils/cn";
 import { Loader2 } from "lucide-react";
 
 /**
- * AppButton ΓÇö Primary enterprise button component.
+ * AppButton — Primary enterprise button component.
  * Features smooth micro-interactions, multiple variants, sizes, and icon positioning.
  */
 export const AppButton = React.forwardRef(

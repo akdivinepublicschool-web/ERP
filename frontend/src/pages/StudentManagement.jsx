@@ -313,7 +313,7 @@ const StudentManagement = () => {
                             {student.firstName} {student.lastName}
                           </h4>
                           <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-0.5">
-                            Roll: {student.rollNumber} ΓÇó{" "}
+                            Roll: {student.rollNumber} •{" "}
                             {getClassName(student.class)}
                           </p>
                         </div>

@@ -2,7 +2,7 @@ import React from "react";
 import { cn } from "../../utils/cn";
 
 /**
- * AppSkeleton ΓÇö Reusable pulse skeleton component for card, table, text, and avatar placeholders.
+ * AppSkeleton — Reusable pulse skeleton component for card, table, text, and avatar placeholders.
  */
 export const AppSkeleton = ({ className, count = 1, height, width, circle = false }) => {
   return (

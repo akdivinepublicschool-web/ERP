@@ -3,7 +3,7 @@ import { ChevronDown } from "lucide-react";
 import { cn } from "../../utils/cn";
 
 /**
- * AppAccordion ΓÇö Reusable collapsible accordion container.
+ * AppAccordion — Reusable collapsible accordion container.
  */
 export const AppAccordion = ({
   items = [], // Array of { id, title, subtitle, content, defaultOpen }

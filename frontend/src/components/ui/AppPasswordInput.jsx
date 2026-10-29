@@ -3,7 +3,7 @@ import AppInput from "./AppInput";
 import { Eye, EyeOff, Lock } from "lucide-react";
 
 /**
- * AppPasswordInput ΓÇö Input with toggle visibility button.
+ * AppPasswordInput — Input with toggle visibility button.
  */
 export const AppPasswordInput = React.forwardRef((props, ref) => {
   const [showPassword, setShowPassword] = useState(false);

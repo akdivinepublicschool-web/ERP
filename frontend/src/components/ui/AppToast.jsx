@@ -3,7 +3,7 @@ import { CheckCircle2, AlertTriangle, XCircle, Info, X } from "lucide-react";
 import { cn } from "../../utils/cn";
 
 /**
- * AppToast / AppNotification ΓÇö Notification alert banner component.
+ * AppToast / AppNotification — Notification alert banner component.
  */
 export const AppToast = ({
   title,

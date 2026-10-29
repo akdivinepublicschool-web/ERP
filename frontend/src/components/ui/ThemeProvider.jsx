@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 
 /**
- * ThemeContext ΓÇö Architectural Context for Light / Dark Mode theme control.
+ * ThemeContext — Architectural Context for Light / Dark Mode theme control.
  */
 const ThemeContext = createContext({
   theme: "light",

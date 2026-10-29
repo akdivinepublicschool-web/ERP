@@ -3,7 +3,7 @@ import { cn } from "../../utils/cn";
 import { Loader2 } from "lucide-react";
 
 /**
- * AppIconButton ΓÇö Compact square or rounded button for icons with optional badge/tooltip.
+ * AppIconButton — Compact square or rounded button for icons with optional badge/tooltip.
  */
 export const AppIconButton = React.forwardRef(
   (

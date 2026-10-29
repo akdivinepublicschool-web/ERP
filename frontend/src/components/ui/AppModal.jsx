@@ -4,7 +4,7 @@ import { X } from "lucide-react";
 import { cn } from "../../utils/cn";
 
 /**
- * AppModal ΓÇö Global enterprise modal system with glass backdrop, title header, body container, action footer, & escape key close.
+ * AppModal — Global enterprise modal system with glass backdrop, title header, body container, action footer, & escape key close.
  */
 export const AppModal = ({
   isOpen = false,

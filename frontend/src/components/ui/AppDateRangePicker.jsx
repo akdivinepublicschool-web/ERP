@@ -3,7 +3,7 @@ import AppDatePicker from "./AppDatePicker";
 import { ArrowRight } from "lucide-react";
 
 /**
- * AppDateRangePicker ΓÇö Dual start/end date picker component.
+ * AppDateRangePicker — Dual start/end date picker component.
  */
 export const AppDateRangePicker = ({
   startDate,

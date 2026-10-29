@@ -3,7 +3,7 @@ import { cn } from "../../utils/cn";
 import AppBreadcrumb from "./AppBreadcrumb";
 
 /**
- * AppPageActions ΓÇö Header action buttons container.
+ * AppPageActions — Header action buttons container.
  */
 export const AppPageActions = ({ children, className }) => {
   return (
@@ -14,7 +14,7 @@ export const AppPageActions = ({ children, className }) => {
 };
 
 /**
- * AppPageHeader ΓÇö Standardized Enterprise Page Header.
+ * AppPageHeader — Standardized Enterprise Page Header.
  * Features title, subtitle, breadcrumbs, primary/secondary action buttons, search, and filters.
  */
 export const AppPageHeader = ({

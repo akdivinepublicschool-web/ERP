@@ -5,7 +5,7 @@ import { cn } from "../../utils/cn";
 import AppButton from "./AppButton";
 
 /**
- * AppDrawer ΓÇö Sliding side panel (Left or Right position).
+ * AppDrawer — Sliding side panel (Left or Right position).
  */
 export const AppDrawer = ({
   isOpen = false,
@@ -77,7 +77,7 @@ export const AppDrawer = ({
 };
 
 /**
- * AppDialog ΓÇö Confirmation / Alert dialog overlay.
+ * AppDialog — Confirmation / Alert dialog overlay.
  */
 export const AppDialog = ({
   isOpen = false,

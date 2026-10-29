@@ -4,7 +4,7 @@ import { cn } from "../../utils/cn";
 import AppModal from "./AppModal";
 
 /**
- * AppFileUpload ΓÇö Drag & drop file uploader with preview support.
+ * AppFileUpload — Drag & drop file uploader with preview support.
  */
 export const AppFileUpload = ({
   onFileSelect,
@@ -103,7 +103,7 @@ export const AppFileUpload = ({
 };
 
 /**
- * AppImagePreview ΓÇö Modal preview for uploaded images.
+ * AppImagePreview — Modal preview for uploaded images.
  */
 export const AppImagePreview = ({ src, alt = "Image preview", isOpen, onClose }) => {
   return (

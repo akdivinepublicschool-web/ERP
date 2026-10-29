@@ -315,7 +315,7 @@ const TeacherHomework = () => {
               <div className="flex items-center gap-2">
                 <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping" />
                 <h2 className="text-xs sm:text-sm font-black text-emerald-900 flex items-center gap-1.5">
-                  ≡ƒôÿ Today's Assigned Homework
+                  📘 Today's Assigned Homework
                 </h2>
               </div>
               <span className="text-[11px] font-extrabold text-emerald-700 bg-white px-2.5 py-1 rounded-xl border border-emerald-200 shadow-2xs">

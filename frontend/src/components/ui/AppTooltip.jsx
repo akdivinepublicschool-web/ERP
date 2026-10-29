@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { cn } from "../../utils/cn";
 
 /**
- * AppTooltip ΓÇö Clean CSS hover tooltip wrapper.
+ * AppTooltip — Clean CSS hover tooltip wrapper.
  */
 export const AppTooltip = ({ children, content, position = "top", className }) => {
   const [visible, setVisible] = useState(false);
@@ -40,7 +40,7 @@ export const AppTooltip = ({ children, content, position = "top", className }) =
 };
 
 /**
- * AppPopover ΓÇö Click container popover.
+ * AppPopover — Click container popover.
  */
 export const AppPopover = ({ trigger, children, className }) => {
   const [open, setOpen] = useState(false);

@@ -419,7 +419,7 @@ const ClassManagement = () => {
               error={errors.section}
             />
             <Input
-              label="Monthly Fee Structure (Γé╣)"
+              label="Monthly Fee Structure (₹)"
               type="number"
               placeholder="0.00"
               value={formData.tuitionFee}

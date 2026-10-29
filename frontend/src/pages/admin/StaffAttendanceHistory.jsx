@@ -108,7 +108,7 @@ const StaffAttendanceHistory = () => {
                   <span>ID: <strong className="text-gray-700 font-bold">{data.teacherInfo?.employeeId || 'N/A'}</strong></span>
                   {data.teacherInfo?.phone && (
                     <>
-                      <span className="text-gray-300">ΓÇó</span>
+                      <span className="text-gray-300">•</span>
                       <span>Ph: <strong className="text-gray-700 font-bold">{data.teacherInfo.phone}</strong></span>
                     </>
                   )}

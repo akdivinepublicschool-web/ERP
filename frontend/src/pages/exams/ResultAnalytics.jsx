@@ -380,7 +380,7 @@ const ResultAnalytics = () => {
                         </span>
                         <div>
                           <p className="text-xs font-black text-slate-900">{tp.fullName}</p>
-                          <p className="text-[10px] font-bold text-slate-400">Roll: {tp.rollNumber} ΓÇó Sec {tp.section}</p>
+                          <p className="text-[10px] font-bold text-slate-400">Roll: {tp.rollNumber} • Sec {tp.section}</p>
                         </div>
                       </div>
 

@@ -3,7 +3,7 @@ import { Check, Minus } from "lucide-react";
 import { cn } from "../../utils/cn";
 
 /**
- * AppCheckbox ΓÇö Reusable custom enterprise checkbox control.
+ * AppCheckbox — Reusable custom enterprise checkbox control.
  */
 export const AppCheckbox = React.forwardRef(
   (

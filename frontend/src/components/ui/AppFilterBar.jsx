@@ -7,7 +7,7 @@ import AppDatePicker from "./AppDatePicker";
 import AppButton from "./AppButton";
 
 /**
- * AppFilterBar ΓÇö Universal Enterprise Filter Bar Component.
+ * AppFilterBar — Universal Enterprise Filter Bar Component.
  * Standardized across Student, Attendance, Finance, Homework, Reports, Staff, Timetable modules.
  */
 export const AppFilterBar = ({

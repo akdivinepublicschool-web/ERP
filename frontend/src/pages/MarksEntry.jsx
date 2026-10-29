@@ -253,9 +253,9 @@ const MarksEntry = () => {
   // Refs for keyboard navigation
   const inputRefs = useRef({});
 
-  // ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+  // ──────────────────────────────────────────────
   // 1. Fetch Dynamic Dropdown Options
-  // ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+  // ──────────────────────────────────────────────
   const fetchOptions = async () => {
     try {
       setOptionsLoading(true);
@@ -391,9 +391,9 @@ const MarksEntry = () => {
     }
   }, [availableSubjects]);
 
-  // ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+  // ──────────────────────────────────────────────
   // 2. Fetch Class Roster & Existing Marks
-  // ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+  // ──────────────────────────────────────────────
   const fetchRoster = async () => {
     if (!selectedExamId || !selectedClassId || !selectedSubjectId) {
       setRosterData(null);
@@ -445,9 +445,9 @@ const MarksEntry = () => {
     fetchRoster();
   }, [selectedExamId, selectedClassId, selectedSubjectId, selectedSection]);
 
-  // ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+  // ──────────────────────────────────────────────
   // 3. Unsaved Changes Guard Handler
-  // ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+  // ──────────────────────────────────────────────
   const handleFilterChange = (setter, value) => {
     if (hasUnsavedChanges) {
       setPendingFilterChange(() => () => setter(value));
@@ -466,9 +466,9 @@ const MarksEntry = () => {
     setShowUnsavedModal(false);
   };
 
-  // ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+  // ──────────────────────────────────────────────
   // 4. Mark Input & Local Real-time Validations
-  // ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+  // ──────────────────────────────────────────────
   const maxMarks = rosterData?.subjectConfig?.maxMarks || 100;
   const passMarks = rosterData?.subjectConfig?.passMarks || 33;
 
@@ -695,9 +695,9 @@ const MarksEntry = () => {
     persistApplicabilityChange(row, nextApplicable, false);
   };
 
-  // ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+  // ──────────────────────────────────────────────
   // 5. Keyboard Navigation (Enter, Up, Down Arrows)
-  // ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+  // ──────────────────────────────────────────────
   const handleKeyDown = (e, index) => {
     const visibleRows = filteredStudentRows;
     const direction = (e.key === 'Enter' || e.key === 'ArrowDown') ? 1 : e.key === 'ArrowUp' ? -1 : 0;
@@ -717,9 +717,9 @@ const MarksEntry = () => {
     }
   };
 
-  // ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+  // ──────────────────────────────────────────────
   // 6. Live In-Page Search & Live Metrics Summary
-  // ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+  // ──────────────────────────────────────────────
   const filteredStudentRows = useMemo(() => {
     if (!searchQuery.trim()) return studentRows;
     const q = searchQuery.toLowerCase();
@@ -777,9 +777,9 @@ const MarksEntry = () => {
     };
   }, [studentRows, passMarks]);
 
-  // ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+  // ──────────────────────────────────────────────
   // 7. Bulk Save Action Execution
-  // ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+  // ──────────────────────────────────────────────
   const handleBulkSave = async () => {
     // Check if any row has invalid entries
     const invalidRows = studentRows.filter((r) => r.isInvalid);
@@ -840,9 +840,9 @@ const MarksEntry = () => {
     }
   };
 
-  // ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+  // ──────────────────────────────────────────────
   // 8. Admin Quick Exam / Subject Config Handler
-  // ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+  // ──────────────────────────────────────────────
   const openAdminConfigModal = () => {
     setAdminExamName('');
     setAdminExamType('MONTHLY');
@@ -1135,9 +1135,9 @@ const MarksEntry = () => {
         </div>
       )}
 
-      {/* ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+      {/* ──────────────────────────────────────────────
           TOP FILTER BAR
-      ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ */}
+      ────────────────────────────────────────────── */}
       <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-xs space-y-3 sm:space-y-4">
         <div className="flex items-center gap-2 text-xs font-extrabold text-slate-700 uppercase tracking-wider">
           <Filter className="w-4 h-4 text-orange-600 shrink-0" />
@@ -1254,16 +1254,16 @@ const MarksEntry = () => {
         </div>
       </div>
 
-      {/* ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+      {/* ──────────────────────────────────────────────
           EXAM & SUBJECT CONTEXT BANNER
-      ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ */}
+      ────────────────────────────────────────────── */}
       {rosterData && rosterData.subjectConfig && (
         <div className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 text-white p-4 sm:p-5 rounded-2xl shadow-md border border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4">
           <div className="space-y-1">
             <div className="flex items-center gap-2 text-[10px] sm:text-xs font-extrabold text-orange-400 uppercase tracking-widest">
               <Sparkles className="w-3.5 h-3.5 shrink-0" />
               <span className="truncate">
-                {rosterData.exam.name} ΓÇó {rosterData.exam.session}
+                {rosterData.exam.name} • {rosterData.exam.session}
               </span>
             </div>
             <h2 className="text-base sm:text-lg font-black tracking-tight text-white flex items-center gap-2">
@@ -1292,9 +1292,9 @@ const MarksEntry = () => {
         </div>
       )}
 
-      {/* ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+      {/* ──────────────────────────────────────────────
           LIVE STATS & PROGRESS SUMMARY BAR
-      ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ */}
+      ────────────────────────────────────────────── */}
       {studentRows.length > 0 && (
         <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-xs space-y-3 sm:space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 sm:gap-2">
@@ -1362,9 +1362,9 @@ const MarksEntry = () => {
         </div>
       )}
 
-      {/* ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+      {/* ──────────────────────────────────────────────
           STUDENT MARKS ENTRY CONTAINER
-      ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ */}
+      ────────────────────────────────────────────── */}
       <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
         {/* Table Top Toolbar */}
         <div className="p-3.5 sm:p-4 border-b border-slate-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50/50">
@@ -1415,7 +1415,7 @@ const MarksEntry = () => {
           </div>
         ) : (
           <>
-            {/* ≡ƒô▒ MOBILE VIEW: User-Friendly Student Entry Cards (No Horizontal Scroll Required!) */}
+            {/* 📱 MOBILE VIEW: User-Friendly Student Entry Cards (No Horizontal Scroll Required!) */}
             <div className="block md:hidden divide-y divide-slate-100">
               {filteredStudentRows.map((s, idx) => {
                 const numVal = s.isAbsent ? 0 : Number(s.marksObtained);
@@ -1444,7 +1444,7 @@ const MarksEntry = () => {
                         <div>
                           <h4 className="text-xs font-black text-slate-900 leading-snug">{s.fullName}</h4>
                           <p className="text-[10px] text-slate-400 font-medium">
-                            Sec: {s.section || 'A'} {s.fatherName ? `ΓÇó ${s.fatherName}` : ''}
+                            Sec: {s.section || 'A'} {s.fatherName ? `• ${s.fatherName}` : ''}
                           </p>
                         </div>
                       </div>
@@ -1535,7 +1535,7 @@ const MarksEntry = () => {
                             className="w-full h-10 px-3 flex items-center justify-center text-center font-black rounded-xl border border-slate-200 bg-white text-slate-900 text-base select-none"
                             aria-label={s.isAbsent ? 'Absent' : `Saved marks ${s.marksObtained}`}
                           >
-                            {s.isApplicable === false ? 'N/A' : (s.isAbsent ? 'ABSENT' : (s.marksObtained !== '' ? s.marksObtained : 'ΓÇö'))}
+                            {s.isApplicable === false ? 'N/A' : (s.isAbsent ? 'ABSENT' : (s.marksObtained !== '' ? s.marksObtained : '—'))}
                           </div>
                         )}
                         {s.isInvalid && (
@@ -1613,7 +1613,7 @@ const MarksEntry = () => {
                         />
                       ) : (
                         <div className="w-full min-h-8 px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-medium text-slate-700 select-none">
-                          {s.remarks || 'ΓÇö'}
+                          {s.remarks || '—'}
                         </div>
                       )}
                     </div>
@@ -1622,7 +1622,7 @@ const MarksEntry = () => {
               })}
             </div>
 
-            {/* ≡ƒÆ╗ DESKTOP VIEW: Full Wide 11-Column Table */}
+            {/* 🖥️ DESKTOP VIEW: Full Wide 11-Column Table */}
             <div className="hidden md:block overflow-x-auto">
               <table className="w-full text-left border-collapse text-xs">
                 <thead>
@@ -1711,7 +1711,7 @@ const MarksEntry = () => {
                                 className="w-28 h-9 mx-auto flex items-center justify-center text-center font-black rounded-xl border border-slate-200 bg-white text-slate-900 text-sm select-none"
                                 aria-label={s.isAbsent ? 'Absent' : `Saved marks ${s.marksObtained}`}
                               >
-                                {s.isApplicable === false ? 'N/A' : (s.isAbsent ? 'ABSENT' : (s.marksObtained !== '' ? s.marksObtained : 'ΓÇö'))}
+                                {s.isApplicable === false ? 'N/A' : (s.isAbsent ? 'ABSENT' : (s.marksObtained !== '' ? s.marksObtained : '—'))}
                               </div>
                             )}
                             {s.isInvalid && (
@@ -1815,7 +1815,7 @@ const MarksEntry = () => {
                             />
                           ) : (
                             <div className="w-full min-h-8 px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-medium text-slate-700 select-none">
-                              {s.remarks || 'ΓÇö'}
+                              {s.remarks || '—'}
                             </div>
                           )}
                         </td>
@@ -1982,9 +1982,9 @@ const MarksEntry = () => {
         </div>
       )}
 
-      {/* ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+      {/* ──────────────────────────────────────────────
           UNSAVED CHANGES WARNING MODAL
-      ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ */}
+      ────────────────────────────────────────────── */}
       {showUnsavedModal && (
         <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl p-6 max-w-md w-full shadow-2xl border border-slate-200 space-y-4 animate-in fade-in zoom-in duration-150">
@@ -2013,9 +2013,9 @@ const MarksEntry = () => {
         </div>
       )}
 
-      {/* ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+      {/* ──────────────────────────────────────────────
           ADMIN QUICK EXAM & SUBJECT CONFIG MODAL
-      ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ */}
+      ────────────────────────────────────────────── */}
       {showAdminModal && (
         <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs z-50 flex items-center justify-center p-4 overflow-y-auto">
           <div className="bg-white rounded-2xl p-6 max-w-xl w-full shadow-2xl border border-slate-200 space-y-5 my-8">
@@ -2087,11 +2087,11 @@ const MarksEntry = () => {
                 </label>
                 <div className="max-h-56 overflow-y-auto space-y-2 border border-slate-200 rounded-xl p-3 bg-slate-50">
                   {!adminClassId ? (
-                    <p className="text-xs text-slate-400 text-center py-4 font-medium">≡ƒæå Select a Class Group above to load subjects</p>
+                    <p className="text-xs text-slate-400 text-center py-4 font-medium">👆 Select a Class Group above to load subjects</p>
                   ) : adminSubjectsLoading ? (
-                    <p className="text-xs text-slate-500 text-center py-4 font-medium animate-pulse">ΓÅ│ Loading subjects...</p>
+                    <p className="text-xs text-slate-500 text-center py-4 font-medium animate-pulse">⏳ Loading subjects...</p>
                   ) : adminConfigList.length === 0 ? (
-                    <p className="text-xs text-red-500 text-center py-4 font-medium">ΓÜá∩╕Å No subjects found. Please add subjects in Academic Management first.</p>
+                    <p className="text-xs text-red-500 text-center py-4 font-medium">⚠️ No subjects found. Please add subjects in Academic Management first.</p>
                   ) : (
                     adminConfigList.map((cfg, idx) => (
                       <div key={cfg.subjectId} className="flex items-center gap-3 bg-white p-2.5 rounded-lg border border-slate-200 text-xs">
@@ -2264,9 +2264,9 @@ const MarksEntry = () => {
         </div>
       )}
 
-      {/* ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+      {/* ──────────────────────────────────────────────
           REOPEN RESULT MANDATORY REASON MODAL
-      ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ */}
+      ────────────────────────────────────────────── */}
       {showReopenModal && (
         <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl p-6 max-w-md w-full shadow-2xl border border-slate-200 space-y-4">
@@ -2331,7 +2331,7 @@ const MarksEntry = () => {
                   Excel Marks Spreadsheet Import
                 </h3>
                 <p className="text-xs text-slate-500 font-bold">
-                  {currentExam?.name} ΓÇó Class {currentClass?.name} ({selectedSection}) ΓÇó {currentSubject?.name}
+                  {currentExam?.name} • Class {currentClass?.name} ({selectedSection}) • {currentSubject?.name}
                 </p>
               </div>
               <button

@@ -3,7 +3,7 @@ import { cn } from "../../utils/cn";
 import { X } from "lucide-react";
 
 /**
- * AppBadge ΓÇö Reusable generic badge element for counts, tags, & highlights.
+ * AppBadge — Reusable generic badge element for counts, tags, & highlights.
  */
 export const AppBadge = ({
   children,
@@ -44,7 +44,7 @@ export const AppBadge = ({
 };
 
 /**
- * AppChip ΓÇö Interactive removable filter chip component.
+ * AppChip — Interactive removable filter chip component.
  */
 export const AppChip = ({ label, onRemove, icon: Icon, className }) => {
   return (

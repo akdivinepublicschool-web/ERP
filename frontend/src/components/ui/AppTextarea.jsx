@@ -2,7 +2,7 @@ import React, { useId } from "react";
 import { cn } from "../../utils/cn";
 
 /**
- * AppTextarea ΓÇö Reusable enterprise multi-line text input with character limit & error state.
+ * AppTextarea — Reusable enterprise multi-line text input with character limit & error state.
  */
 export const AppTextarea = React.forwardRef(
   (

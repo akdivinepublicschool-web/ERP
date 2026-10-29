@@ -215,7 +215,7 @@ const MarksCorrectionConsole = () => {
           </div>
         ) : (
           <>
-            {/* ≡ƒô▒ MOBILE VIEW: Correction Request Cards (No Horizontal Clipping) */}
+            {/* 📱 MOBILE VIEW: Correction Request Cards (No Horizontal Clipping) */}
             <div className="block md:hidden divide-y divide-slate-100">
               {requests.map((r) => {
                 const diff = r.requestedMarks - (r.existingMarks ?? 0);
@@ -248,10 +248,10 @@ const MarksCorrectionConsole = () => {
                     <div>
                       <h4 className="text-xs font-black text-slate-900 leading-snug">{r.student?.fullName || 'Student'}</h4>
                       <p className="text-[10px] text-slate-400 font-bold mt-0.5">
-                        Roll #{r.student?.rollNumber || '-'} ΓÇó Class {r.class?.name || '-'} ({r.section})
+                        Roll #{r.student?.rollNumber || '-'} • Class {r.class?.name || '-'} ({r.section})
                       </p>
                       <p className="text-xs font-black text-orange-600 mt-1">
-                        Subject: {r.subject?.name || 'Subject'} <span className="text-slate-400 font-bold">ΓÇó {r.exam?.name}</span>
+                        Subject: {r.subject?.name || 'Subject'} <span className="text-slate-400 font-bold">• {r.exam?.name}</span>
                       </p>
                     </div>
 
@@ -309,7 +309,7 @@ const MarksCorrectionConsole = () => {
               })}
             </div>
 
-            {/* ≡ƒÆ╗ DESKTOP VIEW: Full Wide 9-Column Table */}
+            {/* 🖥️ DESKTOP VIEW: Full Wide 9-Column Table */}
             <div className="hidden md:block overflow-x-auto">
               <table className="w-full text-left border-collapse text-xs">
                 <thead>
@@ -339,7 +339,7 @@ const MarksCorrectionConsole = () => {
                         <td className="py-3 px-4 whitespace-nowrap">
                           <div className="font-black text-slate-900">{r.student?.fullName || 'Student'}</div>
                           <div className="text-[10px] text-slate-400 font-bold">
-                            Roll #{r.student?.rollNumber || '-'} ΓÇó ID: {r.student?.studentId || '-'}
+                            Roll #{r.student?.rollNumber || '-'} • ID: {r.student?.studentId || '-'}
                           </div>
                         </td>
 
@@ -425,7 +425,7 @@ const MarksCorrectionConsole = () => {
                   {reviewAction === 'APPROVE' ? 'Approve & Apply Marks Correction' : 'Reject Correction Request'}
                 </h3>
                 <p className="text-[11px] sm:text-xs text-slate-500 font-bold mt-0.5">
-                  Student: {selectedRequest.student?.fullName} ΓÇó {selectedRequest.subject?.name}
+                  Student: {selectedRequest.student?.fullName} • {selectedRequest.subject?.name}
                 </p>
               </div>
               <button onClick={() => setSelectedRequest(null)} className="text-slate-400 hover:text-slate-600 cursor-pointer p-1">

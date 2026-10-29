@@ -612,7 +612,7 @@ const AdmissionRequestList = () => {
                           {req.studentInfo.fullName}
                         </h5>
                         <p className="text-[10px] text-gray-450 font-bold uppercase tracking-wider mt-0.5">
-                          Class {req.studentInfo.admissionClass} ΓÇó{" "}
+                          Class {req.studentInfo.admissionClass} •{" "}
                           {req.studentInfo.gender}
                         </p>
                       </div>

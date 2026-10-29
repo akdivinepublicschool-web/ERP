@@ -222,7 +222,7 @@ const StudentAttendanceAnalysis = () => {
               <span className="px-3 py-1 bg-indigo-50 text-indigo-700 font-black text-[10px] uppercase tracking-wider rounded-lg border border-indigo-100">
                 Student Profile
               </span>
-              <span className="text-gray-300">ΓÇó</span>
+              <span className="text-gray-300">•</span>
               <span className="text-xs font-bold text-gray-500">
                 Roll #{rollNumber}
               </span>

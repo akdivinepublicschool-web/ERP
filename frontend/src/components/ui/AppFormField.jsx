@@ -2,7 +2,7 @@ import React from "react";
 import { cn } from "../../utils/cn";
 
 /**
- * AppFormField ΓÇö Container for form controls providing uniform spacing, label, required indicator, helper text, and error message.
+ * AppFormField — Container for form controls providing uniform spacing, label, required indicator, helper text, and error message.
  */
 export const AppFormField = ({
   label,

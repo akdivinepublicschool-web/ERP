@@ -56,7 +56,7 @@ const StaffCredentials = () => {
 
   useEffect(() => {
     fetchStaffCredentials();
-    // ΓöÇΓöÇ Auto-refresh every 30 seconds for live online status
+    // ── Auto-refresh every 30 seconds for live online status
     const interval = setInterval(() => fetchStaffCredentials(true), 30_000);
     return () => clearInterval(interval);
   }, [fetchStaffCredentials]);
@@ -129,7 +129,7 @@ const StaffCredentials = () => {
     }
   };
 
-  // ΓöÇΓöÇ Helper: determine if teacher is truly online
+  // ── Helper: determine if teacher is truly online
   // Consider online if isOnline=true AND lastSeen within last 3 minutes
   const getOnlineStatus = (userObj) => {
     if (!userObj) return { online: false, label: "No Account", lastSeenText: null };
@@ -139,7 +139,7 @@ const StaffCredentials = () => {
         : null;
       return { online: false, label: "Offline", lastSeenText };
     }
-    // isOnline=true ΓÇö verify lastSeen is recent (within 5 minutes)
+    // isOnline=true — verify lastSeen is recent (within 5 minutes)
     const threshold = 5 * 60 * 1000; // 5 minutes
     const diff = userObj.lastSeen ? Date.now() - new Date(userObj.lastSeen).getTime() : Infinity;
     if (diff > threshold) {
@@ -332,7 +332,7 @@ const StaffCredentials = () => {
                           )}
                         </td>
 
-                        {/* ΓöÇΓöÇ Real-time Online Presence Column */}
+                        {/* ── Real-time Online Presence Column */}
                         <td className="px-8 py-4.5">
                           <div className="flex flex-col gap-1">
                             <span
@@ -360,7 +360,7 @@ const StaffCredentials = () => {
                                     <span className="relative inline-flex rounded-full h-2 w-2 bg-gray-400" />
                                   </span>
                                   <WifiOff size={11} />
-                                  {isLinked ? "Offline" : "ΓÇö"}
+                                  {isLinked ? "Offline" : "—"}
                                 </>
                               )}
                             </span>

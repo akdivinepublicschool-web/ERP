@@ -4,7 +4,7 @@ import { Check, ChevronDown, Search, X } from "lucide-react";
 import { cn } from "../../utils/cn";
 
 /**
- * AppMultiSelect ΓÇö Multi-selection dropdown component with tag chips and search.
+ * AppMultiSelect — Multi-selection dropdown component with tag chips and search.
  */
 export const AppMultiSelect = ({
   options = [],

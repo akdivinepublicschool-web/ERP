@@ -3,7 +3,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "../../utils/cn";
 
 /**
- * AppCalendar ΓÇö Full month inline matrix calendar view.
+ * AppCalendar — Full month inline matrix calendar view.
  */
 export const AppCalendar = ({ selectedDate, onSelectDate, className }) => {
   const [currentMonth, setCurrentMonth] = useState(new Date());

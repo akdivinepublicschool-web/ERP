@@ -4,7 +4,7 @@ import { Calendar as CalendarIcon, ChevronLeft, ChevronRight, X, Clock } from "l
 import { cn } from "../../utils/cn";
 
 /**
- * AppDatePicker ΓÇö Single global date picker used across the entire ERP.
+ * AppDatePicker — Single global date picker used across the entire ERP.
  */
 export const AppDatePicker = ({
   value,

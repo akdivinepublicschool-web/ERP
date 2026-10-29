@@ -456,7 +456,7 @@ const ExamScheduleAdmitCard = () => {
               </p>
             ) : (
               <>
-                {/* ≡ƒô▒ MOBILE VIEW: Subject Schedule Cards (No Table Clipping) */}
+                {/* 📱 MOBILE VIEW: Subject Schedule Cards (No Table Clipping) */}
                 <div className="block md:hidden space-y-3">
                   {scheduleItems.map((item, idx) => (
                     <div key={item.subjectId} className="p-3.5 bg-slate-50 rounded-xl border border-slate-200/80 space-y-3">
@@ -535,7 +535,7 @@ const ExamScheduleAdmitCard = () => {
                   ))}
                 </div>
 
-                {/* ≡ƒÆ╗ DESKTOP VIEW: Full Wide 6-Column Schedule Table */}
+                {/* 🖥️ DESKTOP VIEW: Full Wide 6-Column Schedule Table */}
                 <div className="hidden md:block overflow-x-auto">
                   <table className="w-full text-left border-collapse text-xs">
                     <thead>

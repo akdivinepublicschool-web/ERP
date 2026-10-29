@@ -11,7 +11,7 @@ import { Check, ChevronDown, Search, X, Loader2 } from "lucide-react";
 import { cn } from "../../utils/cn";
 
 /**
- * AppSelect ΓÇö Global Unified Enterprise Dropdown Component.
+ * AppSelect — Global Unified Enterprise Dropdown Component.
  * Unified styling across all modules (Student, Finance, Attendance, Reports, etc.)
  */
 export const AppSelect = ({

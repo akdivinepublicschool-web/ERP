@@ -4,7 +4,7 @@ import { cn } from "../../utils/cn";
 import AppButton from "./AppButton";
 
 /**
- * AppBulkToolbar ΓÇö Global Bulk Action Toolbar for selected rows (Students, Homework, Fees, Attendance, Staff).
+ * AppBulkToolbar — Global Bulk Action Toolbar for selected rows (Students, Homework, Fees, Attendance, Staff).
  */
 export const AppBulkToolbar = ({
   selectedCount = 0,

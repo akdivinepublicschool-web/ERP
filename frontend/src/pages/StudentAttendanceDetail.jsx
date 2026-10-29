@@ -96,7 +96,7 @@ const StudentAttendanceDetail = () => {
               {studentDetails.name}
             </h2>
             <p className="text-gray-400 font-bold uppercase text-[10px] tracking-widest mt-1">
-              {studentDetails.className} ΓÇó ROLL NO #{studentDetails.rollNo}
+              {studentDetails.className} • ROLL NO #{studentDetails.rollNo}
             </p>
           </div>
         </div>

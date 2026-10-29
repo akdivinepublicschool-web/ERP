@@ -99,9 +99,9 @@ const ExamDashboard = () => {
         </div>
       </div>
 
-      {/* ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+      {/* ──────────────────────────────────────────────
           SUMMARY METRICS CARDS
-      ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ */}
+      ────────────────────────────────────────────── */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5 sm:gap-3">
         <div className="bg-white p-3 sm:p-4 rounded-2xl border border-slate-200/80 shadow-xs space-y-1">
           <span className="text-[9px] sm:text-[10px] font-extrabold text-slate-400 uppercase tracking-wider block truncate">Total Exams</span>
@@ -134,9 +134,9 @@ const ExamDashboard = () => {
         </div>
       </div>
 
-      {/* ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+      {/* ──────────────────────────────────────────────
           QUICK ACTIONS BAR
-      ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ */}
+      ────────────────────────────────────────────── */}
       <div className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 text-white p-4 sm:p-5 rounded-2xl shadow-md border border-slate-800 space-y-3">
         <div className="flex items-center gap-2 text-xs font-extrabold text-orange-400 uppercase tracking-widest">
           <Sparkles className="w-4 h-4 shrink-0" />
@@ -206,9 +206,9 @@ const ExamDashboard = () => {
         </div>
       </div>
 
-      {/* ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+      {/* ──────────────────────────────────────────────
           RECENT EXAMINATIONS TABLE
-      ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ */}
+      ────────────────────────────────────────────── */}
       <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
         {/* Search & Filter Bar */}
         <div className="p-3.5 sm:p-4 border-b border-slate-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50/50">
@@ -253,7 +253,7 @@ const ExamDashboard = () => {
           </div>
         ) : (
           <>
-            {/* ≡ƒô▒ MOBILE VIEW: User-Friendly Cards (No Horizontal Scrolling Required!) */}
+            {/* 📱 MOBILE VIEW: User-Friendly Cards (No Horizontal Scrolling Required!) */}
             <div className="block md:hidden divide-y divide-slate-100">
               {filteredExams.map((e) => (
                 <div key={e._id} className="p-3.5 space-y-2.5">
@@ -261,7 +261,7 @@ const ExamDashboard = () => {
                     <div className="space-y-0.5">
                       <h3 className="text-xs font-black text-slate-900 leading-snug">{e.name}</h3>
                       <p className="text-[11px] font-bold text-slate-500">
-                        Class: {e.class ? `${e.class.name} (${e.class.section || 'A'})` : '-'} ΓÇó {e.session}
+                        Class: {e.class ? `${e.class.name} (${e.class.section || 'A'})` : '-'} • {e.session}
                       </p>
                     </div>
 
@@ -340,7 +340,7 @@ const ExamDashboard = () => {
               ))}
             </div>
 
-            {/* ≡ƒÆ╗ DESKTOP VIEW: Full Wide Table */}
+            {/* 🖥️ DESKTOP VIEW: Full Wide Table */}
             <div className="hidden md:block overflow-x-auto">
               <table className="w-full text-left border-collapse text-xs">
                 <thead>

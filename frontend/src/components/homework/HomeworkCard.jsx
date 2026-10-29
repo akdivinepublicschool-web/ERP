@@ -82,13 +82,13 @@ const HomeworkCard = ({
       : "";
 
     const whatsappMessage =
-      `≡ƒôÜ *HOMEWORK ASSIGNMENT*\n` +
-      `≡ƒÄô *Class:* ${classStr}\n` +
-      `≡ƒôû *Subject:* ${subjectStr}\n` +
-      `≡ƒôà *Date:* ${dateStr} (Due: ${dueStr})\n` +
-      `≡ƒæ¿ΓÇì≡ƒÅ½ *Teacher:* ${homework.teacherName || ""}\n\n` +
-      `≡ƒôî *Title:* ${homework.title || ""}\n` +
-      `≡ƒô¥ *Instructions:* ${homework.description || ""}\n\n` +
+      `📚 *HOMEWORK ASSIGNMENT*\n` +
+      `🎓 *Class:* ${classStr}\n` +
+      `📖 *Subject:* ${subjectStr}\n` +
+      `📅 *Date:* ${dateStr} (Due: ${dueStr})\n` +
+      `👨‍🏫 *Teacher:* ${homework.teacherName || ""}\n\n` +
+      `📌 *Title:* ${homework.title || ""}\n` +
+      `📝 *Instructions:* ${homework.description || ""}\n\n` +
       `_Sent via School ERP_`;
 
     navigator.clipboard.writeText(whatsappMessage);
@@ -174,7 +174,7 @@ const HomeworkCard = ({
               <span className="text-indigo-600 font-extrabold bg-indigo-50 px-2 py-0.5 rounded-lg border border-indigo-100">
                 {homework.className}
               </span>
-              <span>ΓÇó</span>
+              <span>•</span>
               <span className="text-orange-600 font-extrabold bg-orange-50 px-2 py-0.5 rounded-lg border border-orange-100">
                 {homework.subjectName}
               </span>

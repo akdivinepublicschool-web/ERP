@@ -2,7 +2,7 @@ import React from "react";
 import { cn } from "../../utils/cn";
 
 /**
- * AppPage ΓÇö Standard page container enforcing max-width, responsive padding, & layout structure.
+ * AppPage — Standard page container enforcing max-width, responsive padding, & layout structure.
  */
 export const AppPage = ({ children, className }) => {
   return (
@@ -13,7 +13,7 @@ export const AppPage = ({ children, className }) => {
 };
 
 /**
- * AppSection ΓÇö Content section container with optional title & border.
+ * AppSection — Content section container with optional title & border.
  */
 export const AppSection = ({ title, subtitle, action, children, className }) => {
   return (
@@ -33,7 +33,7 @@ export const AppSection = ({ title, subtitle, action, children, className }) => 
 };
 
 /**
- * AppContainer ΓÇö Constrained container wrapper.
+ * AppContainer — Constrained container wrapper.
  */
 export const AppContainer = ({ children, className, size = "default" }) => {
   const sizes = {
@@ -50,7 +50,7 @@ export const AppContainer = ({ children, className, size = "default" }) => {
 };
 
 /**
- * AppGrid ΓÇö Responsive grid layout using standardized column scales.
+ * AppGrid — Responsive grid layout using standardized column scales.
  */
 export const AppGrid = ({ children, cols = 3, gap = 4, className }) => {
   const colClasses = {
@@ -69,7 +69,7 @@ export const AppGrid = ({ children, cols = 3, gap = 4, className }) => {
 };
 
 /**
- * AppStack ΓÇö Vertical or horizontal flex stack layout.
+ * AppStack — Vertical or horizontal flex stack layout.
  */
 export const AppStack = ({ children, direction = "col", gap = 3, align = "stretch", justify = "start", className }) => {
   return (
@@ -89,7 +89,7 @@ export const AppStack = ({ children, direction = "col", gap = 3, align = "stretc
 };
 
 /**
- * AppDivider ΓÇö Spacing divider element.
+ * AppDivider — Spacing divider element.
  */
 export const AppDivider = ({ label, className }) => {
   if (label) {

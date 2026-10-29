@@ -2,7 +2,7 @@ import React from "react";
 import { cn } from "../../utils/cn";
 
 /**
- * AppProgress ΓÇö Linear progress bar with indicator label.
+ * AppProgress — Linear progress bar with indicator label.
  */
 export const AppProgress = ({
   value = 0,

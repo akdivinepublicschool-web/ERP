@@ -3,7 +3,7 @@ import { cn } from "../../utils/cn";
 import { Loader2 } from "lucide-react";
 
 /**
- * AppSwitch ΓÇö Smooth iOS/Linear style toggle switch.
+ * AppSwitch — Smooth iOS/Linear style toggle switch.
  */
 export const AppSwitch = React.forwardRef(
   (

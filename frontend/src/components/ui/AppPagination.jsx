@@ -4,7 +4,7 @@ import { cn } from "../../utils/cn";
 import AppSelect from "./AppSelect";
 
 /**
- * AppPagination ΓÇö Table/List pagination control with page size selector.
+ * AppPagination — Table/List pagination control with page size selector.
  */
 export const AppPagination = ({
   currentPage = 1,

@@ -591,7 +591,7 @@ const StaffAttendanceAnalysis = () => {
                                     remarks = `Self marked via Geofencing at ${istTime}`;
                                   }
                                 }
-                                return remarks || <span className="italic text-zinc-200">ΓÇö</span>;
+                                return remarks || <span className="italic text-zinc-200">—</span>;
                               })()}
                             </td>
                           </tr>

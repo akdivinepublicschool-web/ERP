@@ -4,7 +4,7 @@ import AppSidebar from "./AppSidebar";
 import AppTopNavbar from "./AppTopNavbar";
 
 /**
- * AppLayout ΓÇö Master Enterprise Layout framing Sidebar, Top Navbar, & main Page container.
+ * AppLayout — Master Enterprise Layout framing Sidebar, Top Navbar, & main Page container.
  */
 export const AppLayout = ({
   children,

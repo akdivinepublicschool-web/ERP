@@ -3,7 +3,7 @@ import { createPortal } from "react-dom";
 import { cn } from "../../utils/cn";
 
 /**
- * AppDropdown ΓÇö Reusable action dropdown menu attached to any trigger element.
+ * AppDropdown — Reusable action dropdown menu attached to any trigger element.
  */
 export const AppDropdown = ({
   trigger,

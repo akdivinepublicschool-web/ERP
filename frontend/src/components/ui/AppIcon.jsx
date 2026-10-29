@@ -2,7 +2,7 @@ import React from "react";
 import { cn } from "../../utils/cn";
 
 /**
- * AppIcon ΓÇö Lucide Icon wrapper enforcing consistent stroke, sizing, color, & hover effects.
+ * AppIcon — Lucide Icon wrapper enforcing consistent stroke, sizing, color, & hover effects.
  */
 export const AppIcon = ({
   icon: Icon,

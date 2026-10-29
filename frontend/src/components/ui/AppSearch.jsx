@@ -3,7 +3,7 @@ import { Search, X, Loader2 } from "lucide-react";
 import { cn } from "../../utils/cn";
 
 /**
- * AppSearch ΓÇö Global search bar with keyboard shortcut hint, clear button, and smooth focus styling.
+ * AppSearch — Global search bar with keyboard shortcut hint, clear button, and smooth focus styling.
  */
 export const AppSearch = ({
   value = "",
@@ -11,7 +11,7 @@ export const AppSearch = ({
   onClear,
   placeholder = "Search students, fees, records...",
   loading = false,
-  shortcut = "ΓîÿK",
+  shortcut = "⌘K",
   className,
   size = "md",
   autoFocus = false,

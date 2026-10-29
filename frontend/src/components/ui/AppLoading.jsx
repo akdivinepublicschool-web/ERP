@@ -3,7 +3,7 @@ import { Loader2 } from "lucide-react";
 import { cn } from "../../utils/cn";
 
 /**
- * AppLoading ΓÇö Spinner, pulse, or full-screen loading container.
+ * AppLoading — Spinner, pulse, or full-screen loading container.
  */
 export const AppLoading = ({ fullScreen = false, text = "Loading...", className }) => {
   const content = (

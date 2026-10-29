@@ -3,7 +3,7 @@ import { ChevronRight, Home } from "lucide-react";
 import { cn } from "../../utils/cn";
 
 /**
- * AppBreadcrumb ΓÇö Enterprise path navigation bar.
+ * AppBreadcrumb — Enterprise path navigation bar.
  */
 export const AppBreadcrumb = ({ items = [], className }) => {
   return (

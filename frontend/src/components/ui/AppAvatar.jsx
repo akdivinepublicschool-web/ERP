@@ -3,7 +3,7 @@ import { cn } from "../../utils/cn";
 import { User, ShieldCheck, GraduationCap, Briefcase, Users, Shield } from "lucide-react";
 
 /**
- * AppAvatar ΓÇö Profile image or initials fallback badge with role badge indicators.
+ * AppAvatar — Profile image or initials fallback badge with role badge indicators.
  * Roles: 'student', 'teacher', 'staff', 'parent', 'admin'
  */
 export const AppAvatar = ({ src, name, role, size = "md", className }) => {

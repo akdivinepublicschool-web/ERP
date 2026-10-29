@@ -4,7 +4,7 @@ import { cn } from "../../utils/cn";
 import AppButton from "./AppButton";
 
 /**
- * AppErrorState ΓÇö Full section or inline error fallback with retry trigger.
+ * AppErrorState — Full section or inline error fallback with retry trigger.
  */
 export const AppErrorState = ({
   title = "Something went wrong",

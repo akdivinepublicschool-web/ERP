@@ -51,7 +51,7 @@ export const AuthProvider = ({ children }) => {
 
     checkLoggedIn();
 
-    // ΓöÇΓöÇ Mark offline when tab/browser is closed
+    // ── Mark offline when tab/browser is closed
     const handleUnload = () => {
       const token = localStorage.getItem("token");
       if (token) {

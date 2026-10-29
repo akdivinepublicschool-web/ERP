@@ -4,7 +4,7 @@ import { cn } from "../../utils/cn";
 import AppButton from "./AppButton";
 
 /**
- * AppEmptyState ΓÇö Enterprise zero-state component with icon illustrations, title, description, & action button.
+ * AppEmptyState — Enterprise zero-state component with icon illustrations, title, description, & action button.
  * Preset Types: 'students', 'attendance', 'homework', 'fees', 'reports', 'general'
  */
 export const AppEmptyState = ({

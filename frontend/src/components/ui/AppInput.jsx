@@ -3,7 +3,7 @@ import { cn } from "../../utils/cn";
 import { X } from "lucide-react";
 
 /**
- * AppInput ΓÇö Standard enterprise text input component.
+ * AppInput — Standard enterprise text input component.
  */
 export const AppInput = React.forwardRef(
   (

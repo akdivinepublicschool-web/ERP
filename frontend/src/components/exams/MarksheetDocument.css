@@ -56,7 +56,7 @@
   --footer-min-height: 11.5mm;
 }
 
-/* 6ΓÇô7 subjects: reduce non-essential vertical whitespace first. */
+/* 6–7 subjects: reduce non-essential vertical whitespace first. */
 .marksheet-document.marksheet-density--compact {
   --student-gap: 2.5mm;
   --student-padding-y: 2.3mm;
@@ -112,11 +112,11 @@
 
 .marksheet-document__content {
   /*
-   * SINGLE A4 SAFE AREA ΓÇö source of truth for every normal marksheet section.
+   * SINGLE A4 SAFE AREA — source of truth for every normal marksheet section.
    * The PNG border was measured at 1055x1491:
-   *   top inner rule Γëê y 65ΓÇô67px  => ~13.0mm from the A4 edge
-   *   side inner rule Γëê x 54ΓÇô60px => ~11.0ΓÇô12.0mm from the A4 edge
-   * We keep ~4ΓÇô6mm visual clearance inside those rules.
+   *   top inner rule Γëê y 65–67px  => ~13.0mm from the A4 edge
+   *   side inner rule Γëê x 54–60px => ~11.0–12.0mm from the A4 edge
+   * We keep ~4–6mm visual clearance inside those rules.
    */
   position: absolute;
   inset: 18mm 16mm 16mm;

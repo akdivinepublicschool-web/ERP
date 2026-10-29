@@ -620,7 +620,7 @@ const AddStudent = () => {
                           />
                         </div>
                         <div className="flex flex-col">
-                          <span className="text-xs font-bold text-emerald-600">Γ£ô Image Preview Loaded</span>
+                          <span className="text-xs font-bold text-emerald-600">✓ Image Preview Loaded</span>
                           <button
                             type="button"
                             onClick={removePhoto}

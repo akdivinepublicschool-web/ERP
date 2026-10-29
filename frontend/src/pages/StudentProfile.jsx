@@ -173,7 +173,7 @@ const StudentProfile = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
             <div className="bg-gray-50 rounded-xl border border-gray-100 p-4 sm:p-5 flex items-center gap-4 relative overflow-hidden group">
               <div className="w-10 sm:w-12 h-10 sm:h-12 bg-white rounded-full border border-gray-100 flex items-center justify-center text-gray-400 group-hover:text-indigo-600 transition-colors shadow-sm shrink-0">
-                <span className="text-lg sm:text-xl font-bold">Γé╣</span>
+                <span className="text-lg sm:text-xl font-bold">₹</span>
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-[9px] sm:text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 truncate">
@@ -181,11 +181,11 @@ const StudentProfile = () => {
                 </p>
                 <div className="flex items-end gap-2 sm:gap-3">
                   <span className="text-xl sm:text-2xl font-bold text-gray-900 truncate">
-                    Γé╣ {feeSummary?.totalFee.toLocaleString()}
+                    ₹ {feeSummary?.totalFee.toLocaleString()}
                   </span>
                 </div>
                 <p className="text-[9px] sm:text-[10px] font-bold text-gray-400 mt-1">
-                  Γé╣ {feeSummary?.totalFee.toLocaleString()}
+                  ₹ {feeSummary?.totalFee.toLocaleString()}
                 </p>
               </div>
             </div>
@@ -200,11 +200,11 @@ const StudentProfile = () => {
                 </p>
                 <div className="flex items-end gap-2 sm:gap-3">
                   <span className="text-xl sm:text-2xl font-bold text-emerald-600 truncate">
-                    Γé╣ {feeSummary?.totalPaid.toLocaleString()}
+                    ₹ {feeSummary?.totalPaid.toLocaleString()}
                   </span>
                 </div>
                 <p className="text-[9px] sm:text-[10px] font-bold text-emerald-600 mt-1">
-                  Γé╣ {feeSummary?.totalPaid.toLocaleString()}
+                  ₹ {feeSummary?.totalPaid.toLocaleString()}
                 </p>
               </div>
             </div>
@@ -223,11 +223,11 @@ const StudentProfile = () => {
                 </p>
                 <div className="flex items-end gap-2 sm:gap-3">
                   <span className="text-xl sm:text-2xl font-bold text-rose-600 truncate">
-                    Γé╣ {feeSummary?.pendingAmount.toLocaleString()}
+                    ₹ {feeSummary?.pendingAmount.toLocaleString()}
                   </span>
                 </div>
                 <p className="text-[9px] sm:text-[10px] font-bold text-rose-400 mt-1">
-                  Γé╣ 5,00,000
+                  ₹ 5,00,000
                 </p>
               </div>
             </div>
@@ -357,10 +357,10 @@ const StudentProfile = () => {
                         {fee.month}
                       </td>
                       <td className="px-4 py-4 text-sm font-bold text-gray-400">
-                        Γé╣ {fee.amount.toLocaleString()}
+                        ₹ {fee.amount.toLocaleString()}
                       </td>
                       <td className="px-4 py-4 text-sm font-bold text-gray-900">
-                        Γé╣ {fee.paidAmount.toLocaleString()}
+                        ₹ {fee.paidAmount.toLocaleString()}
                       </td>
                       <td className="px-4 py-4">
                         <span

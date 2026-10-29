@@ -554,7 +554,7 @@ const ClassAttendanceReport = () => {
                                 {t.name || "N/A"}
                               </span>
                               <span className="text-[9px] text-zinc-400 font-bold uppercase tracking-wider block mt-0.5">
-                                Subject: {t.subject} ΓÇó Phone: {t.phone}
+                                Subject: {t.subject} • Phone: {t.phone}
                               </span>
                             </div>
                           </div>

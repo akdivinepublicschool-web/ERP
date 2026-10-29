@@ -2,7 +2,7 @@ import React from "react";
 import { cn } from "../../utils/cn";
 
 /**
- * AppTabs ΓÇö Reusable tab bar component with 'underline' and 'pills' variants.
+ * AppTabs — Reusable tab bar component with 'underline' and 'pills' variants.
  */
 export const AppTabs = ({
   tabs = [], // Array of { id, label, icon: Icon, badge }

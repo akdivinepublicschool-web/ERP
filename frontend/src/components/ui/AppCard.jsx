@@ -2,7 +2,7 @@ import React from "react";
 import { cn } from "../../utils/cn";
 
 /**
- * AppCard ΓÇö Reusable card component inspired by Stripe & Vercel design systems.
+ * AppCard — Reusable card component inspired by Stripe & Vercel design systems.
  */
 export const AppCard = ({
   children,

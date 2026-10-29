@@ -5,7 +5,7 @@ import AppSkeleton from "./AppSkeleton";
 import AppEmptyState from "./AppEmptyState";
 
 /**
- * AppChartCard ΓÇö Standardized Chart Container with title, subtitle, legend, loading, & zero-state.
+ * AppChartCard — Standardized Chart Container with title, subtitle, legend, loading, & zero-state.
  */
 export const AppChartCard = ({
   title,

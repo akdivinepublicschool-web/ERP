@@ -2,7 +2,7 @@ import React from "react";
 import AppSelect from "./AppSelect";
 
 /**
- * AppCombobox ΓÇö Combobox wrapper around AppSelect.
+ * AppCombobox — Combobox wrapper around AppSelect.
  */
 export const AppCombobox = (props) => {
   return <AppSelect searchable clearable {...props} />;

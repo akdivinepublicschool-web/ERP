@@ -2,7 +2,7 @@ import React, { useId } from "react";
 import { cn } from "../../utils/cn";
 
 /**
- * AppRadio ΓÇö Custom enterprise radio input item.
+ * AppRadio — Custom enterprise radio input item.
  */
 export const AppRadio = React.forwardRef(
   (

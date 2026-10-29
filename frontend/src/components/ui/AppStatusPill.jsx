@@ -2,7 +2,7 @@ import React from "react";
 import { cn } from "../../utils/cn";
 
 /**
- * AppStatusPill ΓÇö Standard status pill indicator used across Attendance, Finance, Student, Homework, etc.
+ * AppStatusPill — Standard status pill indicator used across Attendance, Finance, Student, Homework, etc.
  * Types: 'present', 'absent', 'late', 'paid', 'pending', 'active', 'inactive', 'success', 'danger', 'warning', 'info', 'neutral'
  */
 export const AppStatusPill = ({ status = "neutral", label, size = "md", dot = true, className }) => {

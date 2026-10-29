@@ -141,7 +141,7 @@ const HomeworkFormModal = ({ isOpen, onClose, onSuccess, initialData = null }) =
   const handleQuickPhrase = (phrase) => {
     setFormData(prev => {
       const current = prev.description.trim();
-      const addition = `ΓÇó ${phrase}: `;
+      const addition = `• ${phrase}: `;
       const newText = current ? `${current}\n${addition}` : addition;
       return { ...prev, description: newText };
     });

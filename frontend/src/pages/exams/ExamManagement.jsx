@@ -777,7 +777,7 @@ const ExamManagement = () => {
                 <h3 className="text-sm font-black uppercase text-slate-900">
                   {editMode ? 'Edit & Configure Exam' : 'Configure Exam Subjects & Marks'}
                 </h3>
-                <p className="text-xs text-slate-500 font-bold">{selectedExam.name} ΓÇó {selectedExam.class?.name}</p>
+                <p className="text-xs text-slate-500 font-bold">{selectedExam.name} • {selectedExam.class?.name}</p>
               </div>
               <button onClick={() => setShowSubjectModal(false)} className="text-slate-400 hover:text-slate-600 cursor-pointer">
                 <X className="w-5 h-5" />
@@ -1091,7 +1091,7 @@ const ExamManagement = () => {
                 <h3 className="text-sm font-black text-slate-900">Delete Exam?</h3>
                 <p className="text-xs font-black text-slate-800 mt-1">{deleteTarget.name}</p>
                 <p className="text-[11px] text-slate-500 font-bold mt-0.5">
-                  Class: {deleteTarget.class?.name || '-'} ({deleteTarget.section || deleteTarget.class?.section || 'A'}) ΓÇó Session: {deleteTarget.session}
+                  Class: {deleteTarget.class?.name || '-'} ({deleteTarget.section || deleteTarget.class?.section || 'A'}) • Session: {deleteTarget.session}
                 </p>
               </div>
               <button type="button" onClick={() => { setDeleteTarget(null); setDeleteInfo(null); }} className="text-slate-400 hover:text-slate-700">
