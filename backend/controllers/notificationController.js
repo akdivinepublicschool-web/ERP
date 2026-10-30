@@ -45,8 +45,33 @@ exports.getPushStatus = async (req, res) => {
   return successResponse(res, {
     configured: initializeFirebase(),
     registeredDevices: deviceCount,
-    vapidConfigured: Boolean(process.env.FCM_VAPID_KEY),
   });
+};
+
+exports.sendTestPush = async (req, res, next) => {
+  try {
+    const deviceCount = await DeviceToken.countDocuments({ user: req.user._id });
+    if (!deviceCount) {
+      return errorResponse(res, 'This phone is not registered yet. Enable phone notifications first.', 400);
+    }
+
+    const result = await sendPushToUsers(
+      [req.user._id],
+      { title: 'AK Divine Test Notification', message: 'Your phone is ready to receive school notifications.', link: '/dashboard' },
+      { type: 'test', link: '/dashboard' }
+    );
+
+    if (!result.configured) {
+      return errorResponse(res, 'Firebase Admin is not configured on the server. Check the Render Secret File and redeploy.', 503);
+    }
+    if (!result.sent) {
+      return errorResponse(res, 'Firebase could not deliver the test notification. Check the device permission and Firebase configuration.', 502);
+    }
+
+    return successResponse(res, result, 'Test notification sent to this phone');
+  } catch (error) {
+    next(error);
+  }
 };
 
 exports.sendBroadcast = async (req, res, next) => {

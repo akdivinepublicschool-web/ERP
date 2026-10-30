@@ -10,12 +10,14 @@ const {
   registerDevice,
   unregisterDevice,
   getPushStatus,
+  sendTestPush,
   sendBroadcast,
 } = require('../controllers/notificationController');
 
 router.use(protect);
 
 router.get('/push-status', getPushStatus);
+router.post('/test', sendTestPush);
 router.post('/devices', registerDevice);
 router.delete('/devices', unregisterDevice);
 router.post('/broadcast', isAdmin, sendBroadcast);

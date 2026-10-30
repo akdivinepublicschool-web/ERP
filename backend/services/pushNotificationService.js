@@ -1,4 +1,5 @@
 const admin = require('firebase-admin');
+const fs = require('fs');
 const DeviceToken = require('../models/DeviceToken');
 
 let initialized = false;
@@ -11,8 +12,13 @@ const initializeFirebase = () => {
 
   try {
     let serviceAccount;
+    const serviceAccountFile =
+      process.env.FCM_SERVICE_ACCOUNT_FILE || '/etc/secrets/firebase-service-account.json';
+
     if (process.env.FCM_SERVICE_ACCOUNT_JSON) {
       serviceAccount = JSON.parse(process.env.FCM_SERVICE_ACCOUNT_JSON);
+    } else if (fs.existsSync(serviceAccountFile)) {
+      serviceAccount = JSON.parse(fs.readFileSync(serviceAccountFile, 'utf8'));
     } else if (process.env.FCM_PROJECT_ID && process.env.FCM_CLIENT_EMAIL && process.env.FCM_PRIVATE_KEY) {
       serviceAccount = {
         projectId: process.env.FCM_PROJECT_ID,
@@ -58,8 +64,8 @@ const sendPushToUsers = async (userIds, notification, data = {}) => {
         notification: {
           title: notification.title,
           body: notification.message,
-          icon: '/favicon.ico',
-          badge: '/favicon.ico',
+          icon: '/favicon.png',
+          badge: '/favicon.png',
           data: { link: notification.link || '/dashboard' },
         },
         },

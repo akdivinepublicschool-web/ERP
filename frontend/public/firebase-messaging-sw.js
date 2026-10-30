@@ -20,11 +20,10 @@ if (firebaseConfig.apiKey && firebaseConfig.projectId && firebaseConfig.messagin
     const title = payload.notification?.title || 'AK Divine Public School';
     const options = {
       body: payload.notification?.body || 'You have a new school notification.',
-      icon: '/favicon.ico',
-      badge: '/favicon.ico',
+      icon: '/favicon.png',
+      badge: '/favicon.png',
       data: payload.data || payload.notification?.data || { link: '/dashboard' },
-      tag: payload.data?.notificationId || 'ak-divine-notification',
-      renotify: false,
+      tag: payload.data?.notificationId,
     };
     self.registration.showNotification(title, options);
   });

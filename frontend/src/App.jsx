@@ -1,4 +1,5 @@
-import React, { Suspense, lazy } from "react";
+import React, { Suspense, lazy, useEffect } from "react";
+import { listenForForegroundMessages, isPushSupported } from "./services/firebase";
 import {
   BrowserRouter as Router,
   Routes,
@@ -78,6 +79,50 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
 };
 
 function App() {
+  useEffect(() => {
+    let active = true;
+    let unsubscribe = null;
+
+    const startForegroundNotifications = async () => {
+      if (unsubscribe || !(await isPushSupported()) || !active || Notification.permission !== 'granted') return;
+      unsubscribe = listenForForegroundMessages(async (payload) => {
+        if (!active) return;
+        const title = payload.notification?.title || 'AK Divine Public School';
+        const options = {
+          body: payload.notification?.body || 'You have a new school notification.',
+          icon: '/favicon.png',
+          badge: '/favicon.png',
+          data: { link: payload.data?.link || '/dashboard' },
+        };
+
+        try {
+          const registration = await navigator.serviceWorker.getRegistration('/');
+          if (registration) await registration.showNotification(title, options);
+          else new Notification(title, options);
+        } catch (error) {
+          console.error('Unable to display foreground push notification:', error);
+        }
+      });
+    };
+
+    const handlePushPermissionEnabled = () => {
+      startForegroundNotifications().catch((error) => {
+        console.error('Foreground notification setup failed:', error);
+      });
+    };
+
+    window.addEventListener('push-permission-enabled', handlePushPermissionEnabled);
+    startForegroundNotifications().catch((error) => {
+      console.error('Foreground notification setup failed:', error);
+    });
+
+    return () => {
+      active = false;
+      window.removeEventListener('push-permission-enabled', handlePushPermissionEnabled);
+      if (unsubscribe) unsubscribe();
+    };
+  }, []);
+
   return (
     <Router>
       <AuthProvider>
