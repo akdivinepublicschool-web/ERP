@@ -694,7 +694,7 @@ const Layout = ({ children }) => {
             {/* Notification Dropdown */}
 
             {/* Notification Dropdown */}
-            <div className="relative flex items-center">
+            <div className="relative flex items-center gap-2 sm:gap-2.5">
               <NotificationDropdown />
               {user.role === "admin" && (
                 <Link to="/admin/notifications" className="hidden lg:inline-flex items-center gap-2 rounded-xl border border-orange-200 bg-orange-50 px-3 py-2 text-xs font-bold text-orange-700 hover:bg-orange-100 transition-colors">

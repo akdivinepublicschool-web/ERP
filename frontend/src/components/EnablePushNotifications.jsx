@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { BellRing, CheckCircle2, Loader2, Smartphone, Send } from 'lucide-react';
+import { BellRing, CheckCircle2, Loader2, Smartphone } from 'lucide-react';
 import api from '../services/api';
 import { enablePushNotifications, isPushSupported } from '../services/firebase';
 
 export default function EnablePushNotifications() {
   const [state, setState] = useState('idle');
   const [message, setMessage] = useState('');
-  const [testState, setTestState] = useState('idle');
 
   const registerThisDevice = async () => {
     if (!(await isPushSupported())) {
@@ -57,35 +56,13 @@ export default function EnablePushNotifications() {
     }
   };
 
-  const handleTest = async () => {
-    setTestState('loading');
-    setMessage('');
-    try {
-      const response = await api.post('/notifications/test');
-      setTestState('success');
-      setMessage(response.data?.message || 'Test notification sent. Check your phone notification shade.');
-    } catch (error) {
-      setTestState('error');
-      setMessage(error.response?.data?.message || error.message || 'Test notification could not be sent.');
-    }
-  };
-
   if (state === 'enabled') {
     return (
-      <div className="px-4 py-3 border-t border-slate-100 space-y-2">
+      <div className="px-4 py-3 border-t border-slate-100">
         <p className="text-xs font-semibold text-emerald-700 flex items-center gap-2">
           <CheckCircle2 size={15} /> Phone notifications enabled
         </p>
-        <button
-          type="button"
-          onClick={handleTest}
-          disabled={testState === 'loading'}
-          className="w-full flex items-center justify-center gap-2 rounded-xl border border-orange-200 bg-orange-50 hover:bg-orange-100 disabled:opacity-60 text-orange-700 px-3 py-2.5 text-xs font-bold transition-colors"
-        >
-          {testState === 'loading' ? <Loader2 size={15} className="animate-spin" /> : <Send size={14} />}
-          {testState === 'loading' ? 'Sending test...' : 'Send test notification'}
-        </button>
-        {message && <p className={`text-[11px] leading-relaxed ${testState === 'error' ? 'text-rose-600' : 'text-slate-500'}`}>{message}</p>}
+        <p className="mt-2 text-[11px] leading-relaxed text-slate-500">This phone is registered for school notifications.</p>
       </div>
     );
   }
