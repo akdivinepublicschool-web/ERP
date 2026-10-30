@@ -27,6 +27,7 @@ class ExamService {
 
     let classQuery = { isActive: true };
     let examQuery = {};
+    let teacherSubjects = [];
 
     if (user.role === 'teacher') {
       const teacher = await Teacher.findOne({ user: user._id, isActive: true });
@@ -39,8 +40,9 @@ class ExamService {
       const classTeacherClassIds = classTeacherClasses.map((c) => c._id.toString());
 
       // Classes assigned as Subject Teacher in ClassSubject
-      const subjectMappings = await ClassSubject.find({ teacher: teacher._id }).select('class');
-      const subjectClassIds = subjectMappings.map((m) => m.class.toString());
+      const subjectMappings = await ClassSubject.find({ teacher: teacher._id }).populate('class', 'name section').populate('subject', 'name type').lean();
+      const subjectClassIds = subjectMappings.map((m) => m.class?._id?.toString()).filter(Boolean);
+      teacherSubjects = subjectMappings.filter((m) => m.class && m.subject).map((m) => ({ classId: m.class._id, className: m.class.name, section: m.class.section || '', subjectId: m.subject._id, subjectName: m.subject.name, subjectType: m.subject.type }));
 
       const allowedClassIds = Array.from(new Set([...classTeacherClassIds, ...subjectClassIds]));
       classQuery._id = { $in: allowedClassIds };
@@ -58,7 +60,8 @@ class ExamService {
       sessions,
       examTypes,
       classes,
-      exams,
+      exams: user.role === 'teacher' ? exams.filter((exam) => exam.examType !== 'MONTHLY' || (exam.subjectsConfig || []).every((config) => teacherSubjects.some((mapping) => String(mapping.classId) === String(exam.class?._id || exam.class) && String(mapping.subjectId) === String(config.subject?._id || config.subject)))) : exams,
+      teacherSubjects,
     };
   }
 
@@ -112,6 +115,42 @@ class ExamService {
     });
 
     return await Exam.findById(exam._id).populate('class', 'name section');
+  }
+
+  /**
+   * Create a subject-specific monthly test for an assigned teacher.
+   */
+  async createMonthlyExam(examData, user) {
+    const { name, session, classId, subjectId, maxMarks = 100, passMarks = 33, applicability = 'COMPULSORY', applicableStudents = [] } = examData;
+    if (!name || !session || !classId || !subjectId) {
+      const err = new Error('Test name, session, class, and subject are required'); err.statusCode = 400; throw err;
+    }
+    const teacher = await Teacher.findOne({ user: user._id, isActive: true });
+    if (!teacher) { const err = new Error('Active teacher profile not found'); err.statusCode = 403; throw err; }
+    const mapping = await ClassSubject.findOne({ class: classId, subject: subjectId, teacher: teacher._id });
+    if (!mapping) { const err = new Error('You can create a monthly test only for your assigned subject and class'); err.statusCode = 403; throw err; }
+    const classDoc = await Class.findById(classId).select('_id name section');
+    if (!classDoc) { const err = new Error('Class not found'); err.statusCode = 404; throw err; }
+    const max = Number(maxMarks); const pass = Number(passMarks);
+    if (!Number.isFinite(max) || max <= 0 || !Number.isFinite(pass) || pass < 0 || pass > max) {
+      const err = new Error('Please enter valid maximum and passing marks'); err.statusCode = 400; throw err;
+    }
+    const subjectMode = applicability === 'OPTIONAL' ? 'OPTIONAL' : 'COMPULSORY';
+    const assignedStudents = subjectMode === 'OPTIONAL' ? [...new Set((applicableStudents || []).map(String))] : [];
+    if (subjectMode === 'OPTIONAL') {
+      const validStudents = await Student.find({ _id: { $in: assignedStudents }, class: classId, status: 'Active' }).select('_id').lean();
+      if (validStudents.length !== assignedStudents.length || assignedStudents.length === 0) {
+        const err = new Error('Select at least one active student who takes this optional subject'); err.statusCode = 400; throw err;
+      }
+    }
+
+    const exam = await Exam.create({
+      name: String(name).trim(), examType: 'MONTHLY', session: String(session).trim(),
+      class: classId, section: classDoc.section || '',
+      subjectsConfig: [{ subject: subjectId, maxMarks: max, passMarks: pass, applicability: subjectMode, applicableStudents: assignedStudents }],
+      createdBy: user._id, updatedBy: user._id,
+    });
+    return Exam.findById(exam._id).populate('class', 'name section').populate('subjectsConfig.subject', 'name type');
   }
 
   /**

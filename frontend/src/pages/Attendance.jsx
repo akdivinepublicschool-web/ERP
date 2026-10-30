@@ -150,9 +150,9 @@ const StudentAttendanceCard = React.memo(({ student, status, isMarked, isEditing
 StudentAttendanceCard.displayName = "StudentAttendanceCard";
 
 // Memoized Mobile Staff Attendance Card
-const StaffAttendanceCard = React.memo(({ teacher, status, markedAt, isStaffMarked, toggleStaffStatus, isHoliday, isAdmin }) => {
+const StaffAttendanceCard = React.memo(({ teacher, status, markedAt, isStaffMarked, isStaffEditing, toggleStaffStatus, isHoliday, isAdmin }) => {
   const fullName = `${teacher.firstName} ${teacher.lastName}`;
-  const isCardDisabled = isStaffMarked || isHoliday;
+  const isCardDisabled = (isStaffMarked && (!isStaffEditing || !isAdmin)) || isHoliday;
   return (
     <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 flex flex-col gap-3.5 transition-all hover:shadow-md">
       <div className="flex items-center justify-between gap-3">
@@ -348,6 +348,7 @@ const Attendance = () => {
   const [teachers, setTeachers] = useState([]);
   const [staffAttendanceData, setStaffAttendanceData] = useState({});
   const [isStaffMarked, setIsStaffMarked] = useState(false);
+  const [isStaffEditing, setIsStaffEditing] = useState(false);
 
   const [holidayInfo, setHolidayInfo] = useState(null);
 
@@ -535,7 +536,7 @@ const Attendance = () => {
       setLoading(true);
       try {
         const studentsRes = await api.get(
-          `/admin/classes/${selectedClass}/students`,
+          `/admin/classes/${selectedClass}/students?date=${encodeURIComponent(selectedDate)}`,
         );
         const fetchedStudents = studentsRes.data.data;
         setStudents(fetchedStudents);
@@ -612,6 +613,7 @@ const Attendance = () => {
 
         if (statusRes.data.success && statusRes.data.data.length > 0) {
           setIsStaffMarked(true);
+          setIsStaffEditing(false);
           const markedData = {};
           statusRes.data.data.forEach((entry) => {
             if (entry?.teacher?._id) {
@@ -624,6 +626,7 @@ const Attendance = () => {
           setStaffAttendanceData(markedData);
         } else {
           setIsStaffMarked(false);
+          setIsStaffEditing(false);
           const initialData = {};
           activeTeachers.forEach((t) => {
             initialData[t._id] = { status: "present", markedAt: null };
@@ -738,7 +741,7 @@ const Attendance = () => {
 
   const toggleStaffStatus = (id, status) => {
     if (holidayInfo && !holidayInfo.isWorkingDay) return;
-    if (isStaffMarked) return;
+    if (isStaffMarked && (!isStaffEditing || user?.role !== 'admin')) return;
     setStaffAttendanceData((prev) => {
       const existing = prev[id];
       const prevMarkedAt = typeof existing === 'object' ? existing?.markedAt : null;
@@ -809,7 +812,8 @@ const Attendance = () => {
 
       if (res.data.success) {
         setIsStaffMarked(true);
-        addToast(`Staff attendance archived successfully`, "success");
+        setIsStaffEditing(false);
+        addToast(`Staff attendance ${isStaffMarked ? "updated" : "archived"} successfully`, "success");
       }
     } catch (error) {
       console.error("Submit staff attendance error:", error);
@@ -1845,17 +1849,55 @@ const Attendance = () => {
               </div>
             )}
 
-            {/* Staff attendance button */}
+            {/* Staff attendance actions */}
             {activeTab === "mark-staff" && (
-              <Button
-                onClick={handleStaffSubmit}
-                loading={loading}
-                disabled={(isStaffMarked && user?.role !== 'admin') || (holidayInfo && !holidayInfo.isWorkingDay)}
-                icon={Save}
-                className="rounded-2xl shadow-lg px-8 h-12"
-              >
-                {isStaffMarked ? (user?.role === 'admin' ? "Update Staff Attendance" : "Roster Finalized") : "Submit Staff Attendance"}
-              </Button>
+              <>
+                {!isStaffMarked ? (
+                  <Button
+                    onClick={handleStaffSubmit}
+                    loading={loading}
+                    disabled={holidayInfo && !holidayInfo.isWorkingDay}
+                    icon={Save}
+                    className="rounded-2xl shadow-lg px-8 h-12"
+                  >
+                    Submit Staff Attendance
+                  </Button>
+                ) : user?.role === 'admin' && !isStaffEditing ? (
+                  <Button
+                    onClick={() => setIsStaffEditing(true)}
+                    variant="secondary"
+                    icon={Save}
+                    disabled={holidayInfo && !holidayInfo.isWorkingDay}
+                    className="rounded-2xl shadow-md px-6 h-12 border-indigo-200 text-indigo-700 hover:bg-indigo-50"
+                  >
+                    Modify Attendance
+                  </Button>
+                ) : isStaffEditing ? (
+                  <div className="flex items-center gap-2">
+                    <Button
+                      onClick={() => setIsStaffEditing(false)}
+                      variant="secondary"
+                      disabled={loading}
+                      className="px-5 h-12 rounded-2xl border-gray-200 text-gray-600"
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      onClick={handleStaffSubmit}
+                      loading={loading}
+                      disabled={holidayInfo && !holidayInfo.isWorkingDay}
+                      icon={Save}
+                      className="rounded-2xl shadow-lg px-6 h-12"
+                    >
+                      Update Attendance
+                    </Button>
+                  </div>
+                ) : (
+                  <Button disabled variant="secondary" className="rounded-2xl px-6 h-12">
+                    Roster Finalized
+                  </Button>
+                )}
+              </>
             )}
           </div>
         )}
@@ -2365,7 +2407,7 @@ const Attendance = () => {
                                     },
                                   ].map((option) => {
                                     const isSelected = status === option.id;
-                                    const isBtnDisabled = (isStaffMarked && user?.role !== 'admin') || (holidayInfo && !holidayInfo.isWorkingDay);
+                                    const isBtnDisabled = (isStaffMarked && (!isStaffEditing || user?.role !== 'admin')) || (holidayInfo && !holidayInfo.isWorkingDay);
                                     return (
                                       <button
                                         key={option.id}
@@ -2425,6 +2467,7 @@ const Attendance = () => {
                           status={status}
                           markedAt={markedAt}
                           isStaffMarked={isStaffMarked}
+                          isStaffEditing={isStaffEditing}
                           toggleStaffStatus={toggleStaffStatus}
                           isHoliday={holidayInfo && !holidayInfo.isWorkingDay}
                           isAdmin={user?.role === 'admin'}

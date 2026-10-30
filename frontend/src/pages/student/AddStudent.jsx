@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { getTodayDateString } from "../../utils/dateUtils";
@@ -73,6 +73,10 @@ const AddStudent = () => {
   const [classes, setClasses] = useState([]);
   const [totalStudents, setTotalStudents] = useState(0);
   const [lastAdmissionNumber, setLastAdmissionNumber] = useState(null);
+  const [rollNumberMode, setRollNumberMode] = useState("auto");
+  const [rollPreviewLoading, setRollPreviewLoading] = useState(false);
+  const [rollPreviewError, setRollPreviewError] = useState("");
+  const rollNumberManuallyEditedRef = useRef(false);
   
   // Custom dynamic fields state
   const [customFields, setCustomFields] = useState([]);
@@ -119,6 +123,7 @@ const AddStudent = () => {
 
   const watchClassName = watch("className");
   const watchSection = watch("section");
+  const watchSession = watch("session");
 
   // Dynamic API host resolution for static assets (studentPhoto)
   const apiHost = api.defaults.baseURL ? api.defaults.baseURL.replace('/api', '') : "";
@@ -137,6 +142,48 @@ const AddStudent = () => {
     };
     fetchClasses();
   }, []);
+
+  // Fetch the next available roll number whenever class/section/session changes.
+  // The server revalidates and allocates it again during save to avoid race conditions.
+  useEffect(() => {
+    if (isEditMode || !watchClassName || !watchSession) {
+      setRollPreviewError("");
+      return undefined;
+    }
+
+    let cancelled = false;
+    rollNumberManuallyEditedRef.current = false;
+    setRollNumberMode("auto");
+    setRollPreviewLoading(true);
+    setRollPreviewError("");
+
+    api.get("/students/roll-number/next", {
+      params: {
+        className: watchClassName,
+        section: watchSection || "",
+        session: watchSession
+      }
+    }).then((res) => {
+      if (cancelled) return;
+      const nextRollNumber = res.data?.data?.nextRollNumber;
+      if (!nextRollNumber) throw new Error("Next roll number was not returned by the server");
+      if (rollNumberManuallyEditedRef.current) return;
+      setValue("rollNumber", String(nextRollNumber), {
+        shouldValidate: true,
+        shouldDirty: false
+      });
+      setRollNumberMode("auto");
+    }).catch((error) => {
+      if (cancelled) return;
+      setRollPreviewError(
+        error.response?.data?.message || "Could not calculate the next roll number. You can retry or enter it manually."
+      );
+    }).finally(() => {
+      if (!cancelled) setRollPreviewLoading(false);
+    });
+
+    return () => { cancelled = true; };
+  }, [isEditMode, watchClassName, watchSection, watchSession, setValue]);
 
   // Fetch latest admission stats for new student
   useEffect(() => {
@@ -338,6 +385,7 @@ const AddStudent = () => {
 
       const payload = {
         ...data,
+        rollNumberMode: isEditMode ? "manual" : rollNumberMode,
         photoSource: 'link',
         photoUrl: photoUrlInput || '',
         studentPhoto: photoUrlInput || photoPreview || "",
@@ -781,18 +829,45 @@ const AddStudent = () => {
                     {errors.admissionNumber && <p className="text-[10px] text-red-500 font-bold ml-1">{errors.admissionNumber.message}</p>}
                   </div>
 
-                  {/* Roll Number */}
-                  <div className="space-y-1.5">
-                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Roll Number *</label>
+                  {/* Roll Number: automatic suggestion with an explicit manual override */}
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between ml-1">
+                      <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Roll Number *</label>
+                      {!isEditMode && (
+                        <span className="text-[10px] font-bold text-emerald-600">
+                          {rollPreviewLoading ? "Calculating..." : rollNumberMode === "auto" ? "Auto suggested" : "Manual entry"}
+                        </span>
+                      )}
+                    </div>
+
                     <input
                       type="text"
-                      placeholder="e.g. 101"
+                      inputMode="numeric"
+                      placeholder={!isEditMode && !watchClassName ? "Select class to auto-fill" : "Enter roll number"}
                       className={cn(
-                        "w-full px-5 py-3.5 bg-gray-50/50 border border-gray-100 rounded-2xl text-sm font-semibold outline-none focus:ring-4 focus:ring-indigo-100 focus:bg-white transition-all",
+                        "w-full px-5 py-3.5 border rounded-2xl text-sm font-bold outline-none transition-all bg-white focus:ring-4 focus:ring-indigo-100",
                         errors.rollNumber && "border-red-200 bg-red-50/30"
                       )}
-                      {...register("rollNumber", { required: "Roll number is required" })}
+                      {...register("rollNumber", {
+                        required: "Roll number is required",
+                        onChange: () => {
+                          rollNumberManuallyEditedRef.current = true;
+                          setRollNumberMode("manual");
+                        }
+                      })}
                     />
+                    {!isEditMode && (
+                      <p className="text-[10px] text-gray-500">
+                        {rollPreviewLoading
+                          ? "Finding the next available roll number..."
+                          : rollNumberMode === "manual"
+                            ? "You can edit this number manually. Change class to get a fresh automatic suggestion."
+                            : "Automatically filled for the selected class. You can edit this number if needed."}
+                      </p>
+                    )}
+                    {rollPreviewError && (
+                      <p className="text-[10px] text-amber-700 font-semibold">{rollPreviewError}</p>
+                    )}
                     {errors.rollNumber && <p className="text-[10px] text-red-500 font-bold ml-1">{errors.rollNumber.message}</p>}
                   </div>
 

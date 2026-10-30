@@ -26,7 +26,7 @@ router.use(protect);
 // Filter Options & Roster Loading Routes (STATIC FIRST)
 // ──────────────────────────────────────────────
 router.get('/options', examController.getMarksEntryOptions);
-router.get('/applicability/students', isAdmin, examController.getApplicabilityStudents);
+router.get('/applicability/students', verifyExamTeacherAccess('query', null), examController.getApplicabilityStudents);
 router.get('/roster', verifyExamTeacherAccess('query', 'query'), marksheetController.getClassSubjectRoster);
 
 // ──────────────────────────────────────────────
@@ -78,6 +78,7 @@ router.post('/co-scholastic/bulk', verifyExamTeacherAccess('body', null), marksh
 // ──────────────────────────────────────────────
 // Base Exam CRUD Routes (STATIC / FIRST)
 // ──────────────────────────────────────────────
+router.post('/monthly', examController.createMonthlyExam);
 router.post('/', isAdmin, examController.createExam);
 router.get('/', examController.getAllExams);
 

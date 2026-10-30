@@ -39,6 +39,7 @@ const MarksEntry = () => {
   const [optionsLoading, setOptionsLoading] = useState(true);
   const [allExams, setAllExams] = useState([]);
   const [allClasses, setAllClasses] = useState([]);
+  const [teacherSubjects, setTeacherSubjects] = useState([]);
 
   const [selectedExamId, setSelectedExamId] = useState('');
   const [selectedClassId, setSelectedClassId] = useState('');
@@ -264,6 +265,7 @@ const MarksEntry = () => {
         const { sessions: sessList, classes: clsList, exams: exList } = res.data.data;
         if (sessList && sessList.length > 0) setSessions(sessList);
         setAllClasses(clsList || []);
+        setTeacherSubjects(res.data.data.teacherSubjects || []);
         setAllExams(exList || []);
 
         // Auto-select initial class if available
@@ -860,6 +862,13 @@ const MarksEntry = () => {
     try {
       setAdminSubjectsLoading(true);
 
+      if (user?.role === 'teacher') {
+        const assigned = teacherSubjects.filter((item) => String(item.classId) === String(classId));
+        setAdminConfigList(assigned.map((item) => ({ subjectId: item.subjectId, subjectName: item.subjectName, maxMarks: 100, passMarks: 33, applicability: 'COMPULSORY', applicableStudents: [], selected: false })));
+        setAdminSubjectsLoading(false);
+        return;
+      }
+
       // Try class-specific subject mappings first
       let configList = [];
       try {
@@ -973,6 +982,11 @@ const MarksEntry = () => {
           c.applicability === 'OPTIONAL' ? (c.applicableStudents || []) : [],
       }));
 
+    if (user?.role === 'teacher' && selectedConfigs.length !== 1) {
+      addToast('Please select exactly one of your assigned subjects for this monthly test', 'warning');
+      return;
+    }
+
     if (selectedConfigs.length === 0) {
       addToast('Select at least one subject to configure for the exam', 'warning');
       return;
@@ -980,6 +994,25 @@ const MarksEntry = () => {
 
     try {
       setIsCreatingExam(true);
+      if (user?.role === 'teacher') {
+        const subjectConfig = selectedConfigs[0];
+        const createRes = await api.post('/exams/monthly', {
+          name: adminExamName, session: selectedSession, classId: adminClassId,
+          subjectId: subjectConfig.subjectId, maxMarks: subjectConfig.maxMarks, passMarks: subjectConfig.passMarks,
+          applicability: subjectConfig.applicability,
+          applicableStudents: subjectConfig.applicableStudents,
+        });
+        const newExam = createRes.data.data;
+        addToast(`Monthly test '${newExam.name}' created for ${newExam.subjectsConfig?.[0]?.subject?.name || 'your subject'}.`, 'success');
+        setShowAdminModal(false);
+        setAdminExamName('');
+        await fetchOptions();
+        setSelectedClassId(adminClassId);
+        setSelectedExamType('MONTHLY');
+        setSelectedExamId(newExam._id);
+        return;
+      }
+
       // 1. Create exam
       const createRes = await api.post('/exams', {
         name: adminExamName,
@@ -1085,13 +1118,13 @@ const MarksEntry = () => {
             <span className="truncate">Import</span>
           </button>
 
-          {user?.role === 'admin' && (
+          {(user?.role === 'admin' || user?.role === 'teacher') && (
             <button
               onClick={openAdminConfigModal}
               className="px-3.5 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all shadow-xs cursor-pointer active:scale-95 col-span-2 sm:col-span-1"
             >
               <Plus className="w-4 h-4 text-orange-400 shrink-0" />
-              <span>Create Exam</span>
+              <span>{user?.role === 'teacher' ? 'Create Monthly Test' : 'Create Exam'}</span>
             </button>
           )}
 
@@ -2022,7 +2055,7 @@ const MarksEntry = () => {
             <div className="flex items-center justify-between border-b border-slate-200 pb-3">
               <div className="flex items-center gap-2 text-slate-900">
                 <Plus className="w-5 h-5 text-orange-600" />
-                <h3 className="text-base font-black">Create & Configure Exam</h3>
+                <h3 className="text-base font-black">{user?.role === 'teacher' ? 'Create Monthly Subject Test' : 'Create & Configure Exam'}</h3>
               </div>
               <button
                 onClick={() => setShowAdminModal(false)}
@@ -2049,6 +2082,7 @@ const MarksEntry = () => {
                 <div>
                   <label className="block text-xs font-bold text-slate-700 mb-1">Exam Type</label>
                   <select
+                    disabled={user?.role === 'teacher'}
                     value={adminExamType}
                     onChange={(e) => setAdminExamType(e.target.value)}
                     className="w-full h-10 px-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-900 focus:outline-none focus:border-orange-500"
@@ -2066,13 +2100,23 @@ const MarksEntry = () => {
                   required
                   value={adminClassId}
                   onChange={(e) => {
-                    setAdminClassId(e.target.value);
+                    const classId = e.target.value;
+                    setAdminClassId(classId);
                     setAdminConfigList([]);
+                    if (classId) fetchSubjectsForAdminClass(classId);
                   }}
                   className="w-full h-10 px-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-900 focus:outline-none focus:border-orange-500"
                 >
                   <option value="">-- Select Target Class --</option>
-                  {allClasses.map((c) => (
+                  {user?.role === 'teacher'
+                    ? teacherSubjects.filter((item, index, list) => {
+                        const id = String(item.classId?._id || item.classId || '');
+                        return id && list.findIndex((entry) => String(entry.classId?._id || entry.classId || '') === id) === index;
+                      }).map((item) => {
+                        const id = String(item.classId?._id || item.classId);
+                        return <option key={id} value={id}>{item.className}{item.section ? ` (${item.section})` : ''}</option>;
+                      })
+                    : allClasses.map((c) => (
                     <option key={c._id} value={c._id}>
                       {c.name} {c.section ? `(${c.section})` : ''}
                     </option>

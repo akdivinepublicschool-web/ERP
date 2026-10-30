@@ -35,6 +35,13 @@ exports.createExam = async (req, res, next) => {
   }
 };
 
+exports.createMonthlyExam = async (req, res, next) => {
+  try {
+    const exam = await examService.createMonthlyExam(req.body, req.user);
+    return successResponse(res, exam, 'Monthly subject test created successfully', 201);
+  } catch (error) { next(error); }
+};
+
 exports.getAllExams = async (req, res, next) => {
   try {
     const exams = await examService.getAllExams(req.query);

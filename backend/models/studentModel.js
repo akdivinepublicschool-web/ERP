@@ -90,6 +90,20 @@ const studentSchema = new mongoose.Schema(
       trim: true,
       default: 'A',
     },
+    // Immutable enrollment periods preserve class, section, and roll details over time.
+    enrollmentHistory: {
+      type: [{
+        _id: false,
+        class: { type: mongoose.Schema.Types.ObjectId, ref: 'Class', default: null },
+        className: { type: String, trim: true, default: '' },
+        section: { type: String, trim: true, default: '' },
+        rollNumber: { type: String, trim: true, default: '' },
+        session: { type: String, trim: true, default: '' },
+        fromDate: { type: Date, required: true },
+        toDate: { type: Date, default: null }
+      }],
+      default: []
+    },
     aadhar: {
       type: String,
       trim: true,
@@ -262,6 +276,7 @@ studentSchema.pre('save', async function () {
 studentSchema.index({ className: 1, session: 1, rollNumber: 1 }, { unique: true });
 studentSchema.index({ className: 1, section: 1, status: 1 }); // Frequently queried
 studentSchema.index({ class: 1, status: 1 }); // Frequently queried for active students in class
+studentSchema.index({ 'enrollmentHistory.class': 1, 'enrollmentHistory.fromDate': 1, 'enrollmentHistory.toDate': 1 });
 studentSchema.index({ admissionNumber: 1 }); // Frequently queried for uniqueness/search
 
 module.exports = mongoose.model('Student', studentSchema);

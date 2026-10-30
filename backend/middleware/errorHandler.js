@@ -30,7 +30,7 @@ const errorHandler = (err, req, res, next) => {
     const fieldMap = err.keyValue || err.keyPattern || {};
     const field = Object.keys(fieldMap)[0] || 'field';
     message = field === 'rollNumber' || field === 'className'
-      ? `Roll number collision detected in destination class. Please select 'Auto Generate Roll Numbers' to assign 1, 2, 3... automatically.`
+      ? `Roll number collision detected in the destination class. Choose 'Auto Assign Next Roll Number' and retry.`
       : `Duplicate value for field: ${field}`;
   } else if (err.name === 'JsonWebTokenError') {
     statusCode = 401;

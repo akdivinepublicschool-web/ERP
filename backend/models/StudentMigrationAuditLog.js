@@ -45,9 +45,23 @@ const studentMigrationAuditLogSchema = new mongoose.Schema(
     },
     rollMode: {
       type: String,
-      enum: ['keep', 'regenerate'],
-      default: 'keep',
+      enum: ['keep', 'regenerate', 'assign_next'],
+      default: 'assign_next',
     },
+    effectiveDate: {
+      type: Date,
+      default: Date.now,
+    },
+    studentChanges: [{
+      _id: false,
+      student: { type: mongoose.Schema.Types.ObjectId, ref: 'Student', required: true },
+      studentName: { type: String, trim: true, default: '' },
+      oldClassName: { type: String, trim: true, default: '' },
+      oldSection: { type: String, trim: true, default: '' },
+      oldRollNumber: { type: String, trim: true, default: '' },
+      newRollNumber: { type: String, trim: true, default: '' },
+      session: { type: String, trim: true, default: '' }
+    }],
   },
   {
     timestamps: true,

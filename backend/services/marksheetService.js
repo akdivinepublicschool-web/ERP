@@ -697,13 +697,15 @@ class MarksheetService {
       };
     });
 
-    studentRows.sort((a, b) => {
-      const pctDiff = (b.summary?.percentage || 0) - (a.summary?.percentage || 0);
-      if (pctDiff !== 0) return pctDiff;
-      return rollNumberComparator(a, b);
+    /* Monthly results are kept in roll-number order; rank is intentionally not used. */
+    studentRows.sort((a, b) => { return rollNumberComparator(a, b);
+
+      //
+
+
     });
     studentRows.forEach((row, idx) => {
-      row.rank = idx + 1;
+      // Rank is intentionally omitted from the monthly result report.
     });
     studentRows.sort(rollNumberComparator);
 

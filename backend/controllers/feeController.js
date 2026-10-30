@@ -336,7 +336,11 @@ const getMonthlyFinancialSummary = async (req, res, next) => {
       'October', 'November', 'December', 'January', 'February', 'March'
     ];
 
-    const academicYear = '2026-2027';
+    // Academic session runs April through March.
+    const now = new Date();
+    const sessionStartYear =
+      now.getMonth() >= 3 ? now.getFullYear() : now.getFullYear() - 1;
+    const academicYear = `${sessionStartYear}-${sessionStartYear + 1}`;
 
     const payments = await FeeTransaction.aggregate([
       { 
@@ -354,10 +358,13 @@ const getMonthlyFinancialSummary = async (req, res, next) => {
     ]);
 
     const paymentMap = new Map();
-    payments.forEach(p => paymentMap.set(p._id, p.collected));
+    payments.forEach((payment) => {
+      const monthKey = String(payment._id || '').trim().toLowerCase();
+      paymentMap.set(monthKey, (paymentMap.get(monthKey) || 0) + Number(payment.collected || 0));
+    });
 
     const monthlyData = months.map(mName => {
-      const collected = paymentMap.get(mName) || 0;
+      const collected = paymentMap.get(mName.toLowerCase()) || 0;
       
       let expected = 0;
       const monthMapping = {
@@ -375,7 +382,7 @@ const getMonthlyFinancialSummary = async (req, res, next) => {
         'March': { idx: 2, offset: 1 }
       };
       const mapping = monthMapping[mName];
-      const monthYear = 2026 + mapping.offset;
+      const monthYear = sessionStartYear + mapping.offset;
       const monthIdxVal = mapping.idx;
       const monthEndDate = new Date(monthYear, monthIdxVal + 1, 0, 23, 59, 59, 999);
 
@@ -393,7 +400,8 @@ const getMonthlyFinancialSummary = async (req, res, next) => {
       return {
         month: mName,
         expected: expected || 120000,
-        collected: collected
+        collected,
+        totalCollected: collected
       };
     });
 

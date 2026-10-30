@@ -1,6 +1,6 @@
 /**
  * Marksheet PDF Compiler Utility
- * 
+ *
  * Uses PDFKit to stream production-ready A4 PDFs directly to output response stream.
  * Supports:
  * 1. Individual Student Marksheet PDF (A4 Portrait) matching official LFES Marksheet design
@@ -84,7 +84,7 @@ const drawSingleMarksheet = (doc, data) => {
     const valWidth = width - labelWidth - 4;
 
     doc.fillColor('#000000').fontSize(10).font('Times-Bold').text((val || '-').toString(), valX, y, { width: valWidth });
-    
+
     // Dotted underline
     doc.moveTo(valX, y + 12)
        .lineTo(x + width, y + 12)
@@ -251,7 +251,7 @@ const drawSingleMarksheet = (doc, data) => {
   y += 58;
 
   // 12. Footer Bottom Separator & Website
-  doc.fillColor('#C5A059').fontSize(11).font('Times-Bold').text('❖  ◆  ❖', tableX, y, { width: tableWidth, align: 'center' });
+  doc.fillColor('#C5A059').fontSize(11).font('Times-Bold').text('â–  â—†  â–', tableX, y, { width: tableWidth, align: 'center' });
   doc.fillColor('#444444').fontSize(9.5).font('Helvetica').text(institute?.website || '', tableX, y + 15, { width: tableWidth, align: 'center' });
 };
 
@@ -285,36 +285,40 @@ const compileClassMonthlyResultPdf = (data, outStream) => {
       outStream.on('finish', resolve);
       outStream.on('error', reject);
 
-      const { classInfo, examInfo, subjectList, studentRows } = data;
+      const examInfo = data.examInfo || data.exam || {};
+      const classInfo = data.classInfo || examInfo.class || {};
+      const subjectList = data.subjectList || data.subjects || [];
+      const studentRows = data.studentRows || [];
 
       // Header Banner
-      doc.rect(25, 20, 792, 45).fill('#0F2552');
+      doc.rect(25, 20, 792, 55).fill('#0F2552');
       doc.fillColor('#ffffff').fontSize(16).font('Times-Bold').text('AK DIVINE PUBLIC SCHOOL', 35, 28);
-      doc.fontSize(10).font('Helvetica-Bold').text(`CLASS RESULTS MATRIX — ${examInfo?.name || 'EXAMINATION'} (${examInfo?.session || '2026-2027'})`, 35, 47);
+      doc.fontSize(10).font('Helvetica-Bold').text(`CLASS RESULTS MATRIX ΓÇö ${examInfo?.name || 'EXAMINATION'} (${examInfo?.session || '2026-2027'})`, 35, 47, { width: 440 });
+      doc.fontSize(8).font('Helvetica').text(`SUBJECT: ${subjectList.map((subject) => subject.name).filter(Boolean).join(', ') || '-'}`, 35, 62, { width: 440 });
 
-      doc.fontSize(9).font('Helvetica').text(`Class: ${classInfo?.name || '-'} (${classInfo?.section || 'A'}) | Total Students: ${studentRows?.length || 0}`, 500, 35, { width: 300, align: 'right' });
+      doc.fontSize(9).font('Helvetica').text(`CLASS: ${classInfo?.name || '-'}${classInfo?.section ? ` - ${classInfo.section}` : ''} | STUDENTS: ${studentRows?.length || 0}`, 485, 35, { width: 320, align: 'right' });
 
       // Table Header
-      let y = 75;
+      let y = 86;
       doc.rect(25, y, 792, 22).fill('#1E293B');
       doc.fillColor('#ffffff').fontSize(7.5).font('Helvetica-Bold');
 
-      doc.text('RK', 28, y + 7, { width: 22, align: 'center' });
-      doc.text('ROLL', 52, y + 7, { width: 35, align: 'center' });
-      doc.text('STUDENT NAME', 90, y + 7, { width: 140 });
 
-      let x = 235;
-      const subWidth = Math.min(65, Math.floor(400 / (subjectList?.length || 1)));
+      doc.text('ROLL', 30, y + 7, { width: 42, align: 'center' });
+      doc.text('STUDENT NAME', 78, y + 7, { width: 145 });
+
+      let x = 228;
+      const subWidth = Math.min(65, Math.floor(425 / (subjectList.length || 1)));
 
       (subjectList || []).forEach((sub) => {
         doc.text(sub.name.substring(0, 10).toUpperCase(), x, y + 7, { width: subWidth, align: 'center' });
         x += subWidth;
       });
 
-      doc.text('TOTAL', x, y + 7, { width: 55, align: 'center' });
-      doc.text('%', x + 58, y + 7, { width: 40, align: 'center' });
-      doc.text('GRADE', x + 100, y + 7, { width: 45, align: 'center' });
-      doc.text('STATUS', x + 148, y + 7, { width: 50, align: 'center' });
+      doc.text('TOTAL', x, y + 7, { width: 65, align: 'center' });
+
+
+
 
       y += 22;
 
@@ -330,24 +334,26 @@ const compileClassMonthlyResultPdf = (data, outStream) => {
           doc.rect(25, y, 792, 16).fillAndStroke(rowBg, '#CBD5E1');
 
           doc.fillColor('#0F2552').fontSize(7.5).font('Helvetica-Bold');
-          doc.text((st.rank || idx + 1).toString(), 28, y + 4, { width: 22, align: 'center' });
-          doc.fillColor('#333333').font('Helvetica').text(st.rollNumber.toString(), 52, y + 4, { width: 35, align: 'center' });
-          doc.fillColor('#0F2552').font('Times-Bold').text(st.fullName, 90, y + 4, { width: 140 });
 
-          let rx = 235;
+          doc.fillColor('#333333').font('Helvetica').text(String(st.rollNumber ?? '-'), 30, y + 4, { width: 42, align: 'center' });
+          doc.fillColor('#0F2552').font('Times-Bold').text(st.fullName || '-', 78, y + 4, { width: 145 });
+
+          let rx = 228;
           (subjectList || []).forEach((sub) => {
-            const scoreObj = st.subjectScores ? st.subjectScores[sub._id] : null;
-            doc.fillColor(scoreObj?.isAbsent ? '#dc2626' : '#000000').font('Helvetica');
-            doc.text(scoreObj ? (scoreObj.isAbsent ? 'ABS' : scoreObj.marksObtained.toString()) : '-', rx, y + 4, { width: subWidth, align: 'center' });
+            const scoreObj = (st.subjectMarks || []).find((mark) => String(mark.subjectId) === String(sub.subjectId || sub._id));
+            const isNA = scoreObj?.isApplicable === false || scoreObj?.status === 'N/A';
+            const label = isNA ? 'N/A' : scoreObj?.isAbsent ? 'ABSENT' : (scoreObj?.marksObtained !== null && scoreObj?.marksObtained !== undefined ? String(scoreObj.marksObtained) : '-');
+            doc.fillColor(scoreObj?.isAbsent ? '#dc2626' : isNA ? '#64748b' : '#000000').font('Helvetica');
+            doc.text(label, rx, y + 4, { width: subWidth, align: 'center' });
             rx += subWidth;
           });
 
-          doc.fillColor('#0F2552').font('Helvetica-Bold').text(`${st.summary?.totalMarksObtained}/${st.summary?.totalMaxMarks}`, rx, y + 4, { width: 55, align: 'center' });
-          doc.fillColor('#000000').text(`${st.summary?.percentage}%`, rx + 58, y + 4, { width: 40, align: 'center' });
-          doc.fillColor('#0F2552').text(st.summary?.grade || '-', rx + 100, y + 4, { width: 45, align: 'center' });
+          doc.fillColor('#0F2552').font('Helvetica-Bold').text(`${st.summary?.totalMarksObtained ?? 0}/${st.summary?.totalMaxMarks ?? 0}`, rx, y + 4, { width: 65, align: 'center' });
 
-          const isPass = st.summary?.overallStatus === 'Pass';
-          doc.fillColor(isPass ? '#15803d' : '#dc2626').text(st.summary?.overallStatus || '-', rx + 148, y + 4, { width: 50, align: 'center' });
+
+
+
+
 
           y += 16;
         });

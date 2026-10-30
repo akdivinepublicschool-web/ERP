@@ -17,6 +17,7 @@ const Teacher = require('../models/Teacher');
 const adminService = require('./adminService');
 const holidayService = require('./holidayService');
 const { getStartOfDay, getEndOfDay, getStartOfMonth, getEndOfMonth, getCalendarDay, formatDateString } = require('../utils/dateUtils');
+const { getEnrollmentAtDate } = require('../utils/studentEnrollmentHistory');
 
 class AttendanceService {
   /**
@@ -331,11 +332,21 @@ class AttendanceService {
       class: classId,
       date: { $gte: targetDate, $lte: dayEnd }
     })
-    .populate('student', 'fullName rollNumber');
+    .populate('student', 'fullName rollNumber enrollmentHistory');
+
+    report.forEach(record => {
+      if (!record.student) return;
+      const period = getEnrollmentAtDate(
+        record.student.enrollmentHistory || [],
+        classId,
+        record.date
+      );
+      if (period?.rollNumber) record.student.rollNumber = period.rollNumber;
+    });
 
     report.sort((a, b) => {
-      const rollA = a.student ? (parseInt(a.student.rollNumber) || 0) : 0;
-      const rollB = b.student ? (parseInt(b.student.rollNumber) || 0) : 0;
+      const rollA = a.student ? (parseInt(a.student.rollNumber, 10) || 0) : 0;
+      const rollB = b.student ? (parseInt(b.student.rollNumber, 10) || 0) : 0;
       return rollA - rollB;
     });
 
@@ -506,42 +517,87 @@ class AttendanceService {
    * Get student monthly attendance report for grid view
    */
   async getStudentMonthlyReport(classId, month, year) {
-    const parsedMonth = parseInt(month);
-    const parsedYear = parseInt(year);
+    const parsedMonth = parseInt(month, 10);
+    const parsedYear = parseInt(year, 10);
     const monthStr = String(parsedMonth).padStart(2, '0');
 
     const startDate = getStartOfMonth(`${parsedYear}-${monthStr}-01`);
     const endDate = getEndOfMonth(`${parsedYear}-${monthStr}-01`);
 
-    const students = await Student.find({ class: classId });
-    students.sort((a, b) => (parseInt(a.rollNumber) || 0) - (parseInt(b.rollNumber) || 0));
     const attendanceRecords = await Attendance.find({
       class: classId,
       date: { $gte: startDate, $lte: endDate }
-    });
+    }).lean();
+
+    // Include current students and students who belonged to this class when
+    // the selected month's attendance was recorded.
+    const historicalStudentIds = [...new Set(
+      attendanceRecords.map(record => record.student?.toString()).filter(Boolean)
+    )];
+    const students = await Student.find({
+      $or: [
+        {
+          class: classId,
+          $or: [
+            { enrollmentHistory: { $exists: false } },
+            { enrollmentHistory: { $size: 0 } },
+            { enrollmentHistory: { $elemMatch: {
+              class: classId,
+              fromDate: { $lte: endDate },
+              $or: [{ toDate: null }, { toDate: { $gte: startDate } }]
+            } } }
+          ]
+        },
+        {
+          enrollmentHistory: {
+            $elemMatch: {
+              class: classId,
+              fromDate: { $lte: endDate },
+              $or: [{ toDate: null }, { toDate: { $gte: startDate } }]
+            }
+          }
+        },
+        { _id: { $in: historicalStudentIds } }
+      ]
+    }).select('fullName rollNumber admissionNumber enrollmentHistory').lean();
 
     const report = students.map(student => {
-      const studentRecords = attendanceRecords.filter(r => r.student.toString() === student._id.toString());
+      const studentRecords = attendanceRecords
+        .filter(record => record.student.toString() === student._id.toString())
+        .sort((a, b) => new Date(a.date) - new Date(b.date));
       const dailyStatus = {};
-      
-      studentRecords.forEach(r => {
-        const day = getCalendarDay(r.date);
-        if (day) {
-          dailyStatus[day] = r.status;
-        }
+
+      studentRecords.forEach(record => {
+        const day = getCalendarDay(record.date);
+        if (day) dailyStatus[day] = record.status;
       });
+
+      const referenceDate = studentRecords[0]?.date || endDate;
+      const historyEntry = (student.enrollmentHistory || []).find(entry => {
+        const from = new Date(entry.fromDate).getTime();
+        const to = entry.toDate ? new Date(entry.toDate).getTime() : Infinity;
+        const ref = new Date(referenceDate).getTime();
+        return String(entry.class) === String(classId) && ref >= from && ref <= to;
+      }) || (student.enrollmentHistory || []).find(entry =>
+        String(entry.class) === String(classId) &&
+        new Date(entry.fromDate) <= endDate &&
+        (!entry.toDate || new Date(entry.toDate) >= startDate)
+      );
 
       return {
         student: {
           _id: student._id,
           fullName: student.fullName,
-          rollNumber: student.rollNumber,
+          rollNumber: historyEntry?.rollNumber || student.rollNumber,
           admissionNumber: student.admissionNumber
         },
         attendance: dailyStatus
       };
     });
 
+    report.sort((a, b) =>
+      (parseInt(a.student.rollNumber, 10) || 0) - (parseInt(b.student.rollNumber, 10) || 0)
+    );
     return report;
   }
 

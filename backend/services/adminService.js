@@ -15,6 +15,7 @@ const AcademicSubject = require('../models/Subject'); // Assuming name based on 
 const FeeTransaction = require('../models/FeeTransaction');
 const AttendanceSession = require('../models/AttendanceSession');
 const StaffAttendance = require('../models/StaffAttendance');
+const { getStudentEnrollmentPeriods, getEnrollmentAtDate } = require('../utils/studentEnrollmentHistory');
 const mongoose = require('mongoose');
 
 class AdminService {
@@ -133,10 +134,10 @@ class AdminService {
     const startOfMonth = getStartOfMonth(currentDate);
     const endOfMonth = getEndOfMonth(currentDate);
 
-    const startOfToday = new Date();
-    startOfToday.setHours(0, 0, 0, 0);
-    const endOfToday = new Date();
-    endOfToday.setHours(23, 59, 59, 999);
+    // Use India school-local day boundaries even when the production server runs in UTC.
+    const indiaToday = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Kolkata' }).format(new Date());
+    const startOfToday = new Date(`${indiaToday}T00:00:00.000+05:30`);
+    const endOfToday = new Date(`${indiaToday}T23:59:59.999+05:30`);
 
     const [collectedThisMonthStats, todayStats] = await Promise.all([
       FeeTransaction.aggregate([
@@ -154,7 +155,7 @@ class AdminService {
             status: 'Paid',
             $or: [
               { paymentDate: { $gte: startOfToday, $lte: endOfToday } },
-              { paymentDate: { $exists: false }, createdAt: { $gte: startOfToday, $lte: endOfToday } }
+              { paymentDate: null, createdAt: { $gte: startOfToday, $lte: endOfToday } }
             ]
           }
         },
@@ -202,34 +203,58 @@ class AdminService {
    * Get today's fee collection statistics using optimized MongoDB aggregation
    */
   async getTodayCollection() {
-    const startOfToday = new Date();
-    startOfToday.setHours(0, 0, 0, 0);
-    const endOfToday = new Date();
-    endOfToday.setHours(23, 59, 59, 999);
+    // School-local day boundaries (India Standard Time), independent of server timezone.
+    const indiaToday = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Kolkata' }).format(new Date());
+    const startOfToday = new Date(`${indiaToday}T00:00:00.000+05:30`);
+    const endOfToday = new Date(`${indiaToday}T23:59:59.999+05:30`);
 
-    const todayStats = await FeeTransaction.aggregate([
-      {
-        $match: {
-          status: 'Paid',
-          $or: [
-            { paymentDate: { $gte: startOfToday, $lte: endOfToday } },
-            { paymentDate: { $exists: false }, createdAt: { $gte: startOfToday, $lte: endOfToday } }
-          ]
-        }
-      },
-      {
-        $group: {
-          _id: null,
-          todayCollection: { $sum: '$amount' },
-          transactionCount: { $sum: 1 }
-        }
-      }
-    ]);
+    const transactions = await FeeTransaction.find({
+      status: 'Paid',
+      $or: [
+        { paymentDate: { $gte: startOfToday, $lte: endOfToday } },
+        { paymentDate: null, createdAt: { $gte: startOfToday, $lte: endOfToday } }
+      ]
+    }).sort({ paymentDate: -1, createdAt: -1 }).lean();
 
-    const result = todayStats.length > 0 ? todayStats[0] : { todayCollection: 0, transactionCount: 0 };
+    // Fetch student documents directly by the transaction's student reference.
+    const studentIds = [...new Set(transactions.map((tx) => {
+      const ref = tx.student;
+      return ref && typeof ref === 'object' ? String(ref._id || '') : String(ref || '');
+    }).filter(Boolean))];
+
+    const students = studentIds.length
+      ? await Student.find({ _id: { $in: studentIds } })
+          .select('fullName fatherName address className section admissionNumber')
+          .lean()
+      : [];
+    const studentById = new Map(students.map((student) => [String(student._id), student]));
+
+    const payments = transactions.map((tx) => {
+      const ref = tx.student;
+      const studentId = ref && typeof ref === 'object' ? String(ref._id || '') : String(ref || '');
+      const student = studentById.get(studentId) || {};
+      return {
+        transactionId: tx.transactionId || '',
+        receiptNumber: tx.receiptNumber || '',
+        studentId: student._id || studentId || null,
+        studentName: student.fullName || 'Student details unavailable',
+        fatherName: student.fatherName || '—',
+        className: student.className || '—',
+        section: student.section || '',
+        admissionNumber: student.admissionNumber || '—',
+        address: student.address || '—',
+        amount: Number(tx.amount || 0),
+        type: tx.type || 'Fee',
+        month: tx.month || '—',
+        paymentMode: tx.paymentMode || '—',
+        paymentDate: tx.paymentDate || tx.createdAt || null
+      };
+    });
+
     return {
-      todayCollection: result.todayCollection || 0,
-      transactionCount: result.transactionCount || 0,
+      todayCollection: payments.reduce((total, payment) => total + payment.amount, 0),
+      transactionCount: payments.length,
+      payments,
       currency: 'INR'
     };
   }
@@ -302,12 +327,63 @@ class AdminService {
     return student;
   }
 
-  async getStudentsByClass(classId) {
-    const students = await Student.find({ class: classId });
-    students.sort((a, b) => (parseInt(a.rollNumber) || 0) - (parseInt(b.rollNumber) || 0));
-    return students;
-  }
+  async getStudentsByClass(classId, date) {
+    let filter = { class: classId };
 
+    if (date) {
+      const { getStartOfDay, getEndOfDay } = require('../utils/dateUtils');
+      const start = getStartOfDay(date);
+      const end = getEndOfDay(date);
+      if (start && end) {
+        const historicalAttendanceIds = await Attendance.distinct('student', {
+          class: classId,
+          date: { $gte: start, $lte: end }
+        });
+        filter = {
+          $or: [
+            {
+              class: classId,
+              $or: [
+                { enrollmentHistory: { $exists: false } },
+                { enrollmentHistory: { $size: 0 } },
+                { enrollmentHistory: { $elemMatch: {
+                  class: classId,
+                  fromDate: { $lte: end },
+                  $or: [{ toDate: null }, { toDate: { $gte: start } }]
+                } } }
+              ]
+            },
+            {
+              enrollmentHistory: {
+                $elemMatch: {
+                  class: classId,
+                  fromDate: { $lte: end },
+                  $or: [{ toDate: null }, { toDate: { $gte: start } }]
+                }
+              }
+            },
+            { _id: { $in: historicalAttendanceIds } }
+          ]
+        };
+      }
+    }
+
+    const students = await Student.find(filter);
+    const result = students.map(student => {
+      const data = student.toObject();
+      if (date) {
+        const period = getEnrollmentAtDate(data.enrollmentHistory || [], classId, date);
+        if (period) {
+          data.rollNumber = period.rollNumber || data.rollNumber;
+          data.className = period.className || data.className;
+          data.section = period.section || data.section;
+        }
+      }
+      return data;
+    });
+    result.sort((a, b) => (parseInt(a.rollNumber, 10) || 0) - (parseInt(b.rollNumber, 10) || 0));
+    return result;
+  }
   /**
    * Fetch all classes with teacher details and dynamic student list
    */
@@ -340,56 +416,82 @@ class AdminService {
   async getClassAttendanceReport(classId) {
     const holidayService = require('./holidayService');
     const { formatDateString } = require('../utils/dateUtils');
-    
-    const [students, allAttendanceRecords, activeHolidays] = await Promise.all([
-      Student.find({ class: classId }).select('fullName rollNumber').lean(),
+
+    const [currentStudents, allAttendanceRecords, activeHolidays] = await Promise.all([
+      Student.find({ class: classId }).select('fullName rollNumber class enrollmentHistory').lean(),
       Attendance.find({ class: classId }).select('student date status').lean(),
       holidayService.getActiveHolidays(null, null, 'Students')
     ]);
 
-    students.sort((a, b) => (parseInt(a.rollNumber) || 0) - (parseInt(b.rollNumber) || 0));
-    
-    const attendanceByStudent = new Map();
-    const workingDatesSet = new Set();
+    // Keep students visible in the class where their historical attendance was recorded.
+    const historicalIds = [...new Set(allAttendanceRecords.map(r => r.student?.toString()).filter(Boolean))];
+    const historicalEnrollmentStudents = await Student.find({ 'enrollmentHistory.class': classId })
+      .select('_id').lean();
+    const allIds = [...new Set([
+      ...currentStudents.map(s => s._id.toString()),
+      ...historicalIds,
+      ...historicalEnrollmentStudents.map(s => s._id.toString())
+    ])];
+    const students = await Student.find({ _id: { $in: allIds } })
+      .select('fullName rollNumber class className section enrollmentHistory admissionDate createdAt')
+      .lean();
 
-    for (const r of allAttendanceRecords) {
-      if (r.student && r.date) {
-        const dateKey = formatDateString(r.date);
-        if (dateKey && holidayService.isWorkingDaySync(r.date, activeHolidays)) {
-          const sIdStr = r.student.toString();
-          if (!attendanceByStudent.has(sIdStr)) {
-            attendanceByStudent.set(sIdStr, new Map());
-          }
-          // Deduplicate: keep latest record per unique working date per student
-          attendanceByStudent.get(sIdStr).set(dateKey, r);
-          workingDatesSet.add(dateKey);
-        }
-      }
+    const attendanceByStudent = new Map();
+    const workingDatesByKey = new Map();
+    for (const record of allAttendanceRecords) {
+      if (!record.student || !record.date) continue;
+      const dateKey = formatDateString(record.date);
+      if (!dateKey || !holidayService.isWorkingDaySync(record.date, activeHolidays)) continue;
+      const studentKey = record.student.toString();
+      if (!attendanceByStudent.has(studentKey)) attendanceByStudent.set(studentKey, new Map());
+      attendanceByStudent.get(studentKey).set(dateKey, record);
+      workingDatesByKey.set(dateKey, record.date);
     }
 
-    const totalClasses = workingDatesSet.size;
-
+    const workingDates = [...workingDatesByKey.values()];
     const report = students.map(student => {
-      const studentMap = attendanceByStudent.get(student._id.toString()) || new Map();
-      const records = Array.from(studentMap.values());
-      const presentCount = records.filter(r => r.status === 'Present' || r.status === 'Late').length;
-      const absentCount = records.filter(r => r.status === 'Absent').length;
-      
-      const totalEvaluated = Math.max(totalClasses, presentCount + absentCount);
-      const rawPct = totalEvaluated > 0 ? (presentCount / totalEvaluated) * 100 : 0;
-      const attendancePercentage = Math.min(100, Math.max(0, rawPct)).toFixed(2);
+      const studentRecords = Array.from(attendanceByStudent.get(student._id.toString())?.values() || []);
+      const presentCount = studentRecords.filter(r => r.status === 'Present' || r.status === 'Late').length;
+      const absentCount = studentRecords.filter(r => r.status === 'Absent').length;
+
+      let enrollmentPeriods = (student.enrollmentHistory || [])
+        .filter(entry => String(entry.class) === String(classId));
+
+      if (!enrollmentPeriods.length) {
+        const ownDates = studentRecords.map(record => new Date(record.date)).sort((a, b) => a - b);
+        const isCurrentlyInClass = String(student.class) === String(classId);
+        enrollmentPeriods = [{
+          fromDate: ownDates[0] || student.admissionDate || student.createdAt || new Date(),
+          toDate: isCurrentlyInClass ? null : (ownDates[ownDates.length - 1] || null)
+        }];
+      }
+
+      const studentTotalClasses = workingDates.filter(date => enrollmentPeriods.some(period => {
+        const from = new Date(period.fromDate).getTime();
+        const to = period.toDate ? new Date(period.toDate).getTime() : Infinity;
+        const timestamp = new Date(date).getTime();
+        return timestamp >= from && timestamp <= to;
+      })).length;
+
+      const totalEvaluated = Math.max(studentTotalClasses, presentCount + absentCount);
+      const attendancePercentage = (totalEvaluated > 0
+        ? (presentCount / totalEvaluated) * 100
+        : 0).toFixed(2);
+      const historyEntry = enrollmentPeriods
+        .sort((a, b) => new Date(b.fromDate) - new Date(a.fromDate))[0];
 
       return {
         studentId: student._id,
         name: student.fullName,
-        rollNo: student.rollNumber,
+        rollNo: historyEntry?.rollNumber || student.rollNumber,
         presentCount,
         absentCount,
         attendancePercentage
       };
     });
 
-    return { totalClasses, students: report };
+    report.sort((a, b) => (parseInt(a.rollNo, 10) || 0) - (parseInt(b.rollNo, 10) || 0));
+    return { totalClasses: workingDates.length, students: report };
   }
 
   /**
@@ -400,61 +502,67 @@ class AdminService {
     if (!student) throw new Error('Student not found');
 
     const holidayService = require('./holidayService');
-    const { formatDateString } = require('../utils/dateUtils');
-
-    const [records, rawAttendanceDates, activeHolidays] = await Promise.all([
-      Attendance.find({ student: studentId }).sort({ date: -1 }).lean(),
-      Attendance.distinct('date', { class: student.class._id }),
+    const { formatDateString, getStartOfDay, getEndOfDay } = require('../utils/dateUtils');
+    const [records, activeHolidays] = await Promise.all([
+      Attendance.find({ student: studentId }).populate('class', 'name').sort({ date: -1 }).lean(),
       holidayService.getActiveHolidays(null, null, 'Students')
     ]);
-    
-    let totalClasses = 0;
+
+    const periods = getStudentEnrollmentPeriods(student, records);
+    const periodDates = await Promise.all(periods.filter(p => p.class).map(async period => {
+      const from = getStartOfDay(period.fromDate || student.admissionDate || new Date(0));
+      const to = getEndOfDay(period.toDate || new Date());
+      if (!from || !to || from > to) return { period, dates: [] };
+      const dates = await Attendance.distinct('date', {
+        class: period.class?._id || period.class,
+        date: { $gte: from, $lte: to }
+      });
+      return { period, dates };
+    }));
+
     const workingDatesSet = new Set();
-    for (const d of rawAttendanceDates) {
-      const dateKey = formatDateString(d);
-      if (dateKey && holidayService.isWorkingDaySync(d, activeHolidays)) {
-        workingDatesSet.add(dateKey);
-      }
-    }
-    totalClasses = workingDatesSet.size;
+    periodDates.forEach(({ period, dates }) => {
+      const classId = String(period.class?._id || period.class);
+      dates.forEach(date => {
+        const dateKey = formatDateString(date);
+        if (dateKey && holidayService.isWorkingDaySync(date, activeHolidays)) {
+          workingDatesSet.add(classId + '_' + dateKey);
+        }
+      });
+    });
 
     const validRecordsMap = new Map();
-    for (const r of records) {
-      if (r.date) {
-        const dateKey = formatDateString(r.date);
-        if (dateKey && holidayService.isWorkingDaySync(r.date, activeHolidays)) {
-          if (!validRecordsMap.has(dateKey)) {
-            validRecordsMap.set(dateKey, r);
-          }
-        }
-      }
-    }
+    records.forEach(record => {
+      if (!record.date || !holidayService.isWorkingDaySync(record.date, activeHolidays)) return;
+      const classId = String(record.class?._id || record.class || '');
+      const dateKey = formatDateString(record.date);
+      if (dateKey) validRecordsMap.set(classId + '_' + dateKey, record);
+    });
 
     const validRecords = Array.from(validRecordsMap.values());
-    const present = validRecords.filter(r => r.status === 'Present' || r.status === 'Late').length;
-    const absent = validRecords.filter(r => r.status === 'Absent').length;
-    
-    const totalEvaluated = Math.max(totalClasses, present + absent);
-    const rawPct = totalEvaluated > 0 ? (present / totalEvaluated) * 100 : 0;
-    const percentage = Math.min(100, Math.max(0, rawPct)).toFixed(2);
+    const present = validRecords.filter(record => record.status === 'Present' || record.status === 'Late').length;
+    const absent = validRecords.filter(record => record.status === 'Absent').length;
+    const totalClasses = Math.max(workingDatesSet.size, present + absent);
+    const percentage = (totalClasses > 0 ? (present / totalClasses) * 100 : 0).toFixed(2);
 
     return {
       studentDetails: {
         name: student.fullName,
         rollNo: student.rollNumber,
-        className: student.class ? student.class.name : 'N/A',
+        className: student.class ? student.class.name : 'N/A'
       },
-      summary: {
-        totalClasses,
-        present,
-        absent,
-        percentage
-      },
-      records: records.map(r => ({
-        date: r.date,
-        status: r.status,
-        remarks: r.remarks
-      }))
+      summary: { totalClasses, present, absent, percentage },
+      records: records.map(record => {
+        const classId = record.class?._id || record.class;
+        const period = getEnrollmentAtDate(periods, classId, record.date);
+        return {
+          date: record.date,
+          status: record.status,
+          remarks: record.remarks,
+          className: period?.className || record.class?.name || 'N/A',
+          rollNumber: period?.rollNumber || (String(classId) === String(student.class?._id) ? student.rollNumber : '')
+        };
+      })
     };
   }
 
@@ -466,35 +574,55 @@ class AdminService {
     if (!student) throw new Error('Student not found');
 
     const holidayService = require('./holidayService');
-
-    const [allRecords, rawAttendanceDates, activeHolidays] = await Promise.all([
-      Attendance.find({ student: studentId }).sort({ date: 1, updatedAt: 1 }).lean(),
-      Attendance.distinct('date', { class: student.class._id }),
+    const { formatDateString, getStartOfDay, getEndOfDay } = require('../utils/dateUtils');
+    const [allRecords, activeHolidays] = await Promise.all([
+      Attendance.find({ student: studentId }).populate('class', 'name').sort({ date: 1, updatedAt: 1 }).lean(),
       holidayService.getActiveHolidays(null, null, 'Students')
     ]);
 
-    const { formatDateString } = require('../utils/dateUtils');
-    const uniqueRecordsMap = new Map();
-    allRecords.forEach(r => {
-      const dateKey = formatDateString(r.date);
-      uniqueRecordsMap.set(dateKey, r);
+    const periods = getStudentEnrollmentPeriods(student, allRecords);
+    const periodDates = await Promise.all(periods.filter(p => p.class).map(async period => {
+      const from = getStartOfDay(period.fromDate || student.admissionDate || new Date(0));
+      const to = getEndOfDay(period.toDate || new Date());
+      if (!from || !to || from > to) return [];
+      return Attendance.distinct('date', {
+        class: period.class?._id || period.class,
+        date: { $gte: from, $lte: to }
+      });
+    }));
+
+    const workingDatesSet = new Set();
+    periodDates.forEach((dates, index) => {
+      const period = periods.filter(p => p.class)[index];
+      const classId = String(period.class?._id || period.class);
+      dates.forEach(date => {
+        const dateKey = formatDateString(date);
+        if (dateKey && holidayService.isWorkingDaySync(date, activeHolidays)) {
+          workingDatesSet.add(classId + '_' + dateKey);
+        }
+      });
     });
-    
-    const records = Array.from(uniqueRecordsMap.values()).sort((a, b) => new Date(b.date) - new Date(a.date));
-    
-    let overallTotalHeld = 0;
-    for (const d of rawAttendanceDates) {
-      if (holidayService.isWorkingDaySync(d, activeHolidays)) {
-        overallTotalHeld++;
-      }
-    }
 
-    const overallPresent = records.filter(r => r.status === 'Present').length;
-    const overallPercentage = overallTotalHeld > 0 
-      ? ((overallPresent / overallTotalHeld) * 100).toFixed(2) 
-      : "0.00";
+    const uniqueRecordsMap = new Map();
+    allRecords.forEach(record => {
+      const dateKey = formatDateString(record.date);
+      const classId = String(record.class?._id || record.class || '');
+      if (dateKey) uniqueRecordsMap.set(classId + '_' + dateKey, record);
+    });
+    const records = Array.from(uniqueRecordsMap.values())
+      .sort((a, b) => new Date(b.date) - new Date(a.date));
 
-    // Simulate subjects for UI since we don't have a specific Subject model 
+    const overallTotalHeld = workingDatesSet.size;
+    const overallPresent = records.filter(record =>
+      (record.status === 'Present' || record.status === 'Late') &&
+      holidayService.isWorkingDaySync(record.date, activeHolidays)
+    ).length;
+    const overallPercentage = overallTotalHeld > 0
+      ? ((overallPresent / overallTotalHeld) * 100).toFixed(2)
+      : '0.00';
+
+    // Simulated subject distribution remains unchanged; the overall totals now
+    // use the student's complete class enrollment timeline.
     const mockSubjects = [
       { name: 'Mathematics', code: 'MAT101' },
       { name: 'Science', code: 'SCI101' },
@@ -503,29 +631,21 @@ class AdminService {
       { name: 'Computer Science', code: 'CS101' }
     ];
 
-    // Distribute attendance with slight variation for realism
     const subjects = mockSubjects.map((sub, index) => {
       const subHeld = overallTotalHeld;
       let subAttended = overallPresent;
-      
-      // Random-looking but deterministic variation
       if (overallTotalHeld > 0) {
         if (index === 0 && subAttended < subHeld) subAttended++;
         if (index === 2 && subAttended > 0) subAttended--;
         if (index === 4 && subAttended > 0) subAttended--;
       }
-      
-      if (subAttended > subHeld) subAttended = subHeld;
-      if (subAttended < 0) subAttended = 0;
-
-      const percentage = subHeld > 0 ? ((subAttended / subHeld) * 100).toFixed(2) : "0.00";
-
+      subAttended = Math.max(0, Math.min(subHeld, subAttended));
       return {
         subjectName: sub.name,
         subjectCode: sub.code,
         totalHeld: subHeld,
         totalAttended: subAttended,
-        percentage
+        percentage: subHeld > 0 ? ((subAttended / subHeld) * 100).toFixed(2) : '0.00'
       };
     });
 
@@ -548,7 +668,17 @@ class AdminService {
         totalAttended: overallPresent,
         percentage: overallPercentage
       },
-      records
+      records: records.map(record => {
+        const classId = record.class?._id || record.class;
+        const period = getEnrollmentAtDate(periods, classId, record.date);
+        return {
+          date: record.date,
+          status: record.status,
+          remarks: record.remarks,
+          className: period?.className || record.class?.name || 'N/A',
+          rollNumber: period?.rollNumber || (String(classId) === String(student.class?._id) ? student.rollNumber : '')
+        };
+      })
     };
   }
 
@@ -727,7 +857,7 @@ class AdminService {
       this.analyticsCache.dateString === dateStr &&
       this.analyticsCache.instituteId === (instituteId ? instituteId.toString() : null) &&
       this.analyticsCache.data &&
-      (now - this.analyticsCache.timestamp < 60000)
+      (now - this.analyticsCache.timestamp < 15000)
     ) {
       return {
         ...this.analyticsCache.data,
@@ -1020,6 +1150,35 @@ class AdminService {
         remarks: record.remarks || 'No remarks'
       }));
 
+    // Live roster: teachers without a record stay "Not Marked" until the
+    // existing 12:00 PM IST auto-absent process runs.
+    const activeTeacherRoster = await Teacher.find(teacherQuery)
+      .select('_id firstName lastName subject phone')
+      .lean();
+    const approvedLeaveTeacherIdsForToday = new Set(
+      approvedLeavesToday.map(leave => leave.teacher?.toString()).filter(Boolean)
+    );
+
+    const teacherAttendanceList = activeTeacherRoster.map(teacher => {
+      const record = latestTeacherRecordsMap.get(teacher._id.toString());
+      const isApprovedLeave = approvedLeaveTeacherIdsForToday.has(teacher._id.toString());
+      const status = record?.status || (isApprovedLeave ? 'Leave' : 'Not Marked');
+
+      return {
+        teacherId: teacher._id,
+        fullName: `${teacher.firstName || ''} ${teacher.lastName || ''}`.trim() || 'Teacher',
+        subject: teacher.subject || 'N/A',
+        phone: teacher.phone || 'N/A',
+        status,
+        markedAt: record?.createdAt || null,
+        remarks: record?.remarks || (isApprovedLeave ? 'Approved leave' : ''),
+        isMarked: Boolean(record && !/Auto-marked absent/i.test(record.remarks || ''))
+      };
+    });
+
+    const teacherMarkedCount = teacherAttendanceList.filter(item => item.isMarked).length;
+    const teacherNotMarkedCount = teacherAttendanceList.filter(item => item.status === 'Not Marked').length;
+
     // 6. Calculate percentages
     const studentAttendancePercentage = (!isWorkingDayForStudents) ? 100 : (totalStudents > 0
       ? Math.round((studentStats.present / totalStudents) * 100)
@@ -1103,6 +1262,9 @@ class AdminService {
       pendingClassesList,
       absentStudentsList,
       absentTeachersList,
+      teacherAttendanceList,
+      teacherMarkedCount,
+      teacherNotMarkedCount,
       insights,
       highestAttendanceClass,
       lowestAttendanceClass,

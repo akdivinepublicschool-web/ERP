@@ -75,6 +75,8 @@ const AdminDashboard = () => {
     useState(false);
   const [isAbsentTeachersModalOpen, setIsAbsentTeachersModalOpen] =
     useState(false);
+  const [isTeacherAttendanceModalOpen, setIsTeacherAttendanceModalOpen] =
+    useState(false);
 
   const [pendingStudents, setPendingStudents] = useState([]);
   const [isPendingStudentsModalOpen, setIsPendingStudentsModalOpen] =
@@ -83,6 +85,13 @@ const AdminDashboard = () => {
   const [financialData, setFinancialData] = useState([]);
   const [financialLoading, setFinancialLoading] = useState(true);
   const [hoveredMonthIdx, setHoveredMonthIdx] = useState(null);
+  const [todayCollectionData, setTodayCollectionData] = useState({
+    todayCollection: 0,
+    transactionCount: 0,
+    payments: [],
+  });
+  const [todayCollectionLoading, setTodayCollectionLoading] = useState(false);
+  const [isTodayCollectionModalOpen, setIsTodayCollectionModalOpen] = useState(false);
 
   const [stats, setStats] = useState([
     {
@@ -277,10 +286,29 @@ const AdminDashboard = () => {
     }
   };
 
+  const fetchTodayCollection = async () => {
+    setTodayCollectionLoading(true);
+    try {
+      const res = await api.get(`/dashboard/today-collection?t=${Date.now()}`);
+      if (res?.data?.success && res?.data?.data) {
+        setTodayCollectionData({
+          todayCollection: res.data.data.todayCollection || 0,
+          transactionCount: res.data.data.transactionCount || 0,
+          payments: Array.isArray(res.data.data.payments) ? res.data.data.payments : [],
+        });
+      }
+    } catch (error) {
+      console.error("Today's collection details error:", error);
+    } finally {
+      setTodayCollectionLoading(false);
+    }
+  };
+
   useEffect(() => {
-    // Launch all 5 initial Admin Dashboard API requests concurrently in parallel
+    // Launch all initial Admin Dashboard API requests concurrently in parallel
     Promise.allSettled([
       fetchStats(),
+      fetchTodayCollection(),
       fetchAttendanceAnalytics(),
       fetchAnnouncement(),
       fetchPendingStudents(),
@@ -290,12 +318,14 @@ const AdminDashboard = () => {
     const interval = setInterval(() => {
       if (document.visibilityState === "visible") {
         fetchStats(true);
+        fetchTodayCollection();
         fetchAttendanceAnalytics();
       }
     }, 30000);
 
     const handleLiveUpdate = () => {
       fetchStats(true);
+      fetchTodayCollection();
       fetchAttendanceAnalytics();
     };
 
@@ -305,6 +335,7 @@ const AdminDashboard = () => {
     const handleStorageChange = (e) => {
       if (e.key === "last_fee_payment_timestamp") {
         fetchStats(true);
+        fetchTodayCollection();
       }
     };
     window.addEventListener("storage", handleStorageChange);
@@ -312,6 +343,7 @@ const AdminDashboard = () => {
     const handleVisibilityChange = () => {
       if (document.visibilityState === "visible") {
         fetchStats(true);
+        fetchTodayCollection();
         fetchAttendanceAnalytics();
       }
     };
@@ -429,18 +461,30 @@ const AdminDashboard = () => {
       ───────────────────────────────────────────────────────────────── */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
         {stats.map((stat, idx) => (
-          <AppStatCard
-            key={idx}
-            title={stat.label}
-            value={stat.value}
-            icon={stat.icon}
-            iconColor={stat.color}
-            badgeText={stat.change}
-            trendLabel={stat.subtitle || stat.hint}
-            loading={loading}
-            onClick={() => navigate(stat.route)}
-            className="cursor-pointer hover-lift"
-          />
+          <div key={idx} className="flex flex-col gap-2">
+            <AppStatCard
+              title={stat.label}
+              value={stat.value}
+              icon={stat.icon}
+              iconColor={stat.color}
+              badgeText={stat.change}
+              trendLabel={stat.subtitle || stat.hint}
+              loading={loading}
+              className="hover-lift"
+            />
+            {stat.label === "Today's Collection" && (
+              <button
+                type="button"
+                onClick={() => {
+                  setIsTodayCollectionModalOpen(true);
+                  fetchTodayCollection();
+                }}
+                className="self-end inline-flex items-center gap-1 text-xs font-extrabold text-indigo-600 hover:text-indigo-800 hover:underline px-1 py-1 transition-colors"
+              >
+                View Payments <ArrowUpRight size={14} />
+              </button>
+            )}
+          </div>
         ))}
       </div>
 
@@ -640,6 +684,12 @@ const AdminDashboard = () => {
                     >
                       Absent: {attendanceAnalytics?.teacherAbsent || 0}
                     </button>
+                    <span className="text-xs text-emerald-700 font-bold">
+                      Marked: {attendanceAnalytics?.teacherMarkedCount ?? attendanceAnalytics?.teacherPresent ?? 0}
+                    </span>
+                    <span className="text-xs text-amber-700 font-bold">
+                      Not Marked: {attendanceAnalytics?.teacherNotMarkedCount ?? 0}
+                    </span>
                     <span className="text-xs text-gray-400 font-semibold">
                       Total: {attendanceAnalytics?.totalTeachers || 0}
                     </span>
@@ -670,10 +720,10 @@ const AdminDashboard = () => {
                   className="text-indigo-600 font-bold hover:underline cursor-pointer"
                   onClick={(e) => {
                     e.stopPropagation();
-                    setIsAbsentTeachersModalOpen(true);
+                    setIsTeacherAttendanceModalOpen(true);
                   }}
                 >
-                  Staff Absent →
+                  View Teacher Status →
                 </span>
               </div>
             </AppCard>
@@ -854,14 +904,25 @@ const AdminDashboard = () => {
             <div className="space-y-4">
               <div className="h-56 flex items-end justify-between gap-2 pt-6 px-2 border-b border-gray-100">
                 {financialData.map((item, idx) => {
+                  // API responses historically used `collected`; support both
+                  // names so the chart never calculates a NaN bar height.
+                  const collectedAmount = Math.max(
+                    0,
+                    Number(item?.totalCollected ?? item?.collected ?? 0) || 0,
+                  );
                   const maxAmt = Math.max(
-                    ...financialData.map((d) => d.totalCollected || 1),
                     1,
+                    ...financialData.map((entry) =>
+                      Math.max(
+                        0,
+                        Number(entry?.totalCollected ?? entry?.collected ?? 0) || 0,
+                      ),
+                    ),
                   );
-                  const heightPct = Math.max(
-                    10,
-                    Math.min(100, (item.totalCollected / maxAmt) * 100),
-                  );
+                  const heightPct =
+                    collectedAmount > 0
+                      ? Math.max(4, Math.min(100, (collectedAmount / maxAmt) * 100))
+                      : 0;
                   const isHovered = hoveredMonthIdx === idx;
 
                   return (
@@ -874,7 +935,7 @@ const AdminDashboard = () => {
                       {/* Tooltip Hover */}
                       {isHovered && (
                         <div className="absolute -top-10 bg-gray-900 text-white text-[10px] font-bold px-2 py-1 rounded-lg shadow-lg whitespace-nowrap z-20 animate-in fade-in duration-150">
-                          {item.month}: {formatToINR(item.totalCollected)}
+                          {item.month}: {formatToINR(collectedAmount)}
                         </div>
                       )}
 
@@ -1027,6 +1088,68 @@ const AdminDashboard = () => {
       {/* ─────────────────────────────────────────────────────────────────
           MODALS SECTION (Intact logic, design system styling)
       ───────────────────────────────────────────────────────────────── */}
+
+      {/* Today's Fee Collection Details Modal */}
+      <AppModal
+        isOpen={isTodayCollectionModalOpen}
+        onClose={() => setIsTodayCollectionModalOpen(false)}
+        title="Today's Fee Collection"
+        subtitle="All successful fee payments recorded today."
+        size="lg"
+      >
+        <div className="space-y-4">
+          <div className="grid grid-cols-2 gap-3">
+            <div className="rounded-xl border border-emerald-100 bg-emerald-50 p-3">
+              <p className="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Total Collected</p>
+              <p className="mt-1 text-xl font-black text-emerald-800">{formatToINR(todayCollectionData.todayCollection)}</p>
+            </div>
+            <div className="rounded-xl border border-indigo-100 bg-indigo-50 p-3">
+              <p className="text-[10px] font-bold uppercase tracking-wider text-indigo-700">Total Payments</p>
+              <p className="mt-1 text-xl font-black text-indigo-800">{todayCollectionData.transactionCount}</p>
+            </div>
+          </div>
+
+          {todayCollectionLoading && todayCollectionData.payments.length === 0 ? (
+            <div className="py-10 text-center text-sm font-semibold text-gray-500">Loading today's payments...</div>
+          ) : todayCollectionData.payments.length === 0 ? (
+            <AppEmptyState
+              title="No Fee Collection Today"
+              description="Successful fee payments made today will appear here."
+            />
+          ) : (
+            <div className="max-h-[60vh] space-y-3 overflow-y-auto pr-1">
+              {todayCollectionData.payments.map((payment, idx) => (
+                <div
+                  key={payment.transactionId || payment.receiptNumber || idx}
+                  className="rounded-xl border border-gray-200 bg-white p-3.5 shadow-2xs"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-extrabold text-gray-900">{payment.studentName}</p>
+                      <p className="mt-0.5 text-xs font-semibold text-indigo-700">
+                        Class {payment.className}{payment.section ? ` - ${payment.section}` : ''}
+                        <span className="text-gray-400"> · Adm. {payment.admissionNumber}</span>
+                      </p>
+                    </div>
+                    <p className="shrink-0 text-base font-black text-emerald-700">{formatToINR(payment.amount)}</p>
+                  </div>
+
+                  <div className="mt-3 grid grid-cols-1 gap-x-4 gap-y-2 border-t border-gray-100 pt-3 sm:grid-cols-2">
+                    <p className="text-xs text-gray-600"><span className="font-bold text-gray-800">Father:</span> {payment.fatherName}</p>
+                    <p className="text-xs text-gray-600"><span className="font-bold text-gray-800">Payment:</span> {payment.type} · {payment.month}</p>
+                    <p className="text-xs text-gray-600"><span className="font-bold text-gray-800">Mode:</span> {payment.paymentMode}</p>
+                    <p className="text-xs text-gray-600"><span className="font-bold text-gray-800">Receipt:</span> {payment.receiptNumber || '—'}</p>
+                    <p className="text-xs text-gray-600 sm:col-span-2"><span className="font-bold text-gray-800">Address:</span> {payment.address}</p>
+                    <p className="text-[11px] font-semibold text-gray-400 sm:col-span-2">
+                      Paid at: {payment.paymentDate ? new Date(payment.paymentDate).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }) : '—'}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </AppModal>
 
       {/* Post Announcement Modal */}
       <AppModal
@@ -1201,6 +1324,49 @@ const AdminDashboard = () => {
           rowKey="studentId"
           emptyTitle="No Absent Students"
           emptyDescription="100% Student Attendance recorded today!"
+        />
+      </AppModal>
+
+      {/* Complete Teacher Attendance Status Modal */}
+      <AppModal
+        isOpen={isTeacherAttendanceModalOpen}
+        onClose={() => setIsTeacherAttendanceModalOpen(false)}
+        title="Today's Teacher Attendance Status"
+        subtitle="Live status of every active teacher. Not Marked Yet is not treated as Absent before 12:00 PM."
+        size="lg"
+      >
+        <AppTable
+          columns={[
+            { key: "fullName", header: "Teacher Name", sortable: true },
+            { key: "subject", header: "Subject / Dept" },
+            {
+              key: "status",
+              header: "Attendance Status",
+              render: (value) => (
+                <span className={cn(
+                  "inline-flex px-2.5 py-1 rounded-full text-[11px] font-extrabold",
+                  value === "Present" ? "bg-emerald-50 text-emerald-700" :
+                  value === "Late" ? "bg-amber-50 text-amber-700" :
+                  value === "Absent" ? "bg-rose-50 text-rose-700" :
+                  value === "Leave" ? "bg-sky-50 text-sky-700" :
+                  "bg-gray-100 text-gray-600"
+                )}>
+                  {value === "Not Marked" ? "Not Marked Yet" : value}
+                </span>
+              ),
+            },
+            {
+              key: "markedAt",
+              header: "Marked At",
+              render: (value) => value
+                ? new Date(value).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })
+                : "—",
+            },
+          ]}
+          data={attendanceAnalytics?.teacherAttendanceList || []}
+          rowKey="teacherId"
+          emptyTitle="No Active Teachers"
+          emptyDescription="There are no active teachers to display."
         />
       </AppModal>
 

@@ -135,8 +135,9 @@ const createStudent = async (req, res, next) => {
     const isArray = Array.isArray(req.body);
     const studentsData = isArray ? req.body : [req.body];
 
-    // Cache classes to avoid querying too many times
+    // Cache classes and reserve roll numbers within this request batch.
     const classCache = {};
+    const reservedRollsByClassSession = new Map();
 
     for (const data of studentsData) {
       if (data.className) {
@@ -154,6 +155,39 @@ const createStudent = async (req, res, next) => {
           data.class = targetClass._id;
         }
       }
+
+      const className = String(data.className || '').trim();
+      const session = String(data.session || '').trim();
+      const allocationKey = className + '::' + session;
+      if (!reservedRollsByClassSession.has(allocationKey)) {
+        reservedRollsByClassSession.set(allocationKey, new Set());
+      }
+      const reservedRolls = reservedRollsByClassSession.get(allocationKey);
+
+      if (data.rollNumberMode === 'auto') {
+        if (!className || !session) {
+          return errorResponse(res, 'Class and academic session are required for automatic roll-number allocation.', 400);
+        }
+        const existingStudents = await Student.find({ className, session }).select('rollNumber').lean();
+        const occupied = new Set(existingStudents.map((student) => String(student.rollNumber || '').trim()));
+        reservedRolls.forEach((roll) => occupied.add(roll));
+        const numericRolls = [...occupied].map((roll) => Number.parseInt(roll, 10)).filter((roll) => Number.isInteger(roll) && roll > 0);
+        let nextRoll = (numericRolls.length ? Math.max(...numericRolls) : 0) + 1;
+        while (occupied.has(String(nextRoll))) nextRoll += 1;
+        data.rollNumber = String(nextRoll);
+      } else {
+        data.rollNumber = String(data.rollNumber || '').trim();
+        if (!data.rollNumber) {
+          return errorResponse(res, 'Roll number is required. Choose automatic assignment or enter it manually.', 400);
+        }
+        const duplicate = await Student.findOne({ className, session, rollNumber: data.rollNumber }).select('_id').lean();
+        if (duplicate || reservedRolls.has(data.rollNumber)) {
+          return errorResponse(res, 'This roll number is already assigned in the selected class and academic session. Choose another number.', 409);
+        }
+      }
+
+      reservedRolls.add(String(data.rollNumber));
+      delete data.rollNumberMode;
     }
 
     const createdStudents = await Student.create(studentsData);
@@ -191,15 +225,21 @@ const updateStudent = async (req, res, next) => {
       return errorResponse(res, 'Student not found', 404);
     }
 
-    // Resolve class if className or section is modified
-    if (req.body.className !== undefined || req.body.section !== undefined) {
-      const className = req.body.className !== undefined ? req.body.className : oldStudent.className;
-      const section = req.body.section !== undefined ? req.body.section : oldStudent.section;
-      
-      const targetClass = await getOrCreateClass(className, section);
-      if (targetClass) {
-        req.body.class = targetClass._id;
-      }
+    // Class/section changes must go through migration so enrollment history,
+    // roll allocation, attendance boundaries and audit logs stay consistent.
+    const classNameChanged = req.body.className !== undefined &&
+      String(req.body.className).trim().toUpperCase() !== String(oldStudent.className || '').trim().toUpperCase();
+    const sectionChanged = req.body.section !== undefined &&
+      String(req.body.section || '').trim() !== String(oldStudent.section || '').trim();
+    const classIdChanged = req.body.class !== undefined &&
+      String(req.body.class) !== String(oldStudent.class || '');
+
+    if (classNameChanged || sectionChanged || classIdChanged) {
+      return errorResponse(
+        res,
+        'Student class or section cannot be changed from profile edit. Please use the Bulk Class Migration flow so attendance history and roll numbers remain correct.',
+        409
+      );
     }
 
     const student = await Student.findByIdAndUpdate(req.params.id, req.body, {
@@ -259,7 +299,7 @@ const updateStudent = async (req, res, next) => {
 };
 
 /**
- * @desc    Delete a student (soft delete — sets status to Inactive)
+ * @desc    Delete a student (soft delete - sets status to Inactive)
  * @route   DELETE /api/students/:id
  * @access  Public
  */
@@ -271,11 +311,8 @@ const deleteStudent = async (req, res, next) => {
       { new: true }
     );
 
-    if (!student) {
-      return errorResponse(res, 'Student not found', 404);
-    }
+    if (!student) return errorResponse(res, 'Student not found', 404);
 
-    // Pull student from class.students array since they are now inactive/deleted
     if (student.class) {
       await Class.findByIdAndUpdate(student.class, {
         $pull: { students: student._id }
@@ -283,6 +320,36 @@ const deleteStudent = async (req, res, next) => {
     }
 
     return successResponse(res, student, 'Student deactivated successfully');
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * @desc Permanently delete only the student profile; preserve linked history.
+ * @route DELETE /api/students/:id/permanent
+ * @access Private (Admin only)
+ */
+const permanentlyDeleteStudent = async (req, res, next) => {
+  try {
+    if (!require('mongoose').isValidObjectId(req.params.id)) {
+      return errorResponse(res, 'Invalid student ID', 400);
+    }
+
+    const student = await Student.findById(req.params.id);
+    if (!student) return errorResponse(res, 'Student not found', 404);
+
+    // Intentionally preserve attendance, marks, fee ledgers, payment transactions,
+    // and migration audit documents. Only remove the student's profile document.
+    await Student.deleteOne({ _id: student._id });
+
+    // Remove denormalized class membership without deleting class/history data.
+    await Class.updateMany(
+      { students: student._id },
+      { $pull: { students: student._id } }
+    );
+
+    return successResponse(res, { deletedStudentId: student._id }, 'Student profile permanently deleted. Historical records were preserved.');
   } catch (error) {
     next(error);
   }
@@ -376,6 +443,24 @@ const getStudentProfile = async (req, res, next) => {
   }
 };
 
+const getNextRollNumberPreview = async (req, res, next) => {
+  try {
+    const className = String(req.query.className || '').trim();
+    const session = String(req.query.session || '').trim();
+    if (!className || !session) {
+      return errorResponse(res, 'Class and academic session are required to calculate the next roll number.', 400);
+    }
+    const students = await Student.find({ className, session }).select('rollNumber').lean();
+    const occupied = new Set(students.map((student) => String(student.rollNumber || '').trim()));
+    const numericRolls = [...occupied].map((roll) => Number.parseInt(roll, 10)).filter((roll) => Number.isInteger(roll) && roll > 0);
+    let nextRollNumber = (numericRolls.length ? Math.max(...numericRolls) : 0) + 1;
+    while (occupied.has(String(nextRollNumber))) nextRollNumber += 1;
+    return successResponse(res, { nextRollNumber: String(nextRollNumber) }, 'Next roll number calculated');
+  } catch (error) {
+    next(error);
+  }
+};
+
 const getLatestAdmissionStats = async (req, res, next) => {
   try {
     const totalStudents = await Student.countDocuments();
@@ -431,165 +516,59 @@ const getLatestAdmissionStats = async (req, res, next) => {
  */
 const bulkMigrateStudents = async (req, res, next) => {
   try {
-    const { studentIds, targetClassId, targetClassName, targetSection, rollMode = 'keep' } = req.body;
+    const {
+      studentIds,
+      targetClassId,
+      targetClassName,
+      targetSection,
+      rollMode = 'assign_next',
+      effectiveDate
+    } = req.body;
 
     if (!Array.isArray(studentIds) || studentIds.length === 0) {
       return errorResponse(res, 'Please select at least one student to migrate', 400);
     }
-
     if (!targetClassName && !targetClassId) {
       return errorResponse(res, 'Target class name or target class ID is required', 400);
     }
 
-    // Resolve or create target class
     let targetClass = null;
-    if (targetClassId) {
+    if (targetClassId && require('mongoose').isValidObjectId(targetClassId)) {
       targetClass = await Class.findById(targetClassId);
     }
-
+    // Migration must target an existing, configured class. Do not silently
+    // create classes or dummy teachers as a side effect of a student transfer.
     if (!targetClass && targetClassName) {
-      targetClass = await getOrCreateClass(targetClassName, targetSection);
-    }
-
-    if (!targetClass) {
-      return errorResponse(res, 'Failed to resolve or create target class', 400);
-    }
-
-    const newClassName = targetClass.name;
-    const newSec = targetSection !== undefined ? targetSection : (targetClass.section || '');
-
-    // Fetch migrating students to capture current state
-    const existingStudents = await Student.find({ _id: { $in: studentIds } })
-      .select('_id class className section rollNumber fullName')
-      .lean();
-
-    if (existingStudents.length === 0) {
-      return errorResponse(res, 'No valid students found for migration', 404);
-    }
-
-    // Capture old class details for audit log
-    const oldClassNames = [...new Set(existingStudents.map(s => s.className || 'Unknown'))];
-    const oldSections = [...new Set(existingStudents.map(s => s.section || ''))];
-    const oldClassIds = [...new Set(existingStudents.map(s => s.class ? s.class.toString() : null).filter(Boolean))];
-
-    const oldClassDisplay = oldClassNames.join(', ');
-    const oldSectionDisplay = oldSections.join(', ');
-
-    const bulkOps = [];
-
-    if (rollMode === 'regenerate') {
-      // Fetch all students that will end up in the destination class (existing + migrating)
-      const allDestStudents = await Student.find({
-        $or: [
-          { class: targetClass._id },
-          { _id: { $in: studentIds } }
-        ]
-      })
-      .select('_id firstName lastName fullName rollNumber')
-      .lean();
-
-      allDestStudents.sort((a, b) => {
-        const nameA = a.fullName || `${a.firstName || ''} ${a.lastName || ''}`.trim();
-        const nameB = b.fullName || `${b.firstName || ''} ${b.lastName || ''}`.trim();
-        return nameA.localeCompare(nameB, undefined, { sensitivity: 'base', numeric: true });
-      });
-
-      const now = Date.now();
-
-      // Pass 1: Assign unique temporary roll numbers & target class to ALL destination students to eliminate unique index collisions
-      const tempOps = allDestStudents.map((student, idx) => ({
-        updateOne: {
-          filter: { _id: student._id },
-          update: {
-            $set: {
-              class: targetClass._id,
-              className: newClassName,
-              section: newSec,
-              rollNumber: `TEMP_${student._id}_${now}_${idx}`
-            }
-          }
-        }
-      }));
-
-      if (tempOps.length > 0) {
-        await Student.bulkWrite(tempOps, { ordered: true });
+      const normalizedName = String(targetClassName).trim().toUpperCase();
+      const normalizedSection = String(targetSection || '').trim().toUpperCase();
+      const fullName = normalizedSection ? `${normalizedName}-${normalizedSection}` : normalizedName;
+      // When a section is supplied, never fall back to a different/base class;
+      // that can silently place a student in the wrong section.
+      targetClass = await Class.findOne({ name: fullName });
+      if (!targetClass && !normalizedSection) {
+        targetClass = await Class.findOne({ name: normalizedName });
       }
-
-      // Pass 2: Assign final sequential roll numbers 1, 2, 3... sorted alphabetically
-      allDestStudents.forEach((student, index) => {
-        const newRoll = (index + 1).toString();
-        bulkOps.push({
-          updateOne: {
-            filter: { _id: student._id },
-            update: { $set: { rollNumber: newRoll } }
-          }
-        });
-      });
-    } else {
-      // Keep existing roll numbers
-      studentIds.forEach(id => {
-        bulkOps.push({
-          updateOne: {
-            filter: { _id: id },
-            update: {
-              $set: {
-                class: targetClass._id,
-                className: newClassName,
-                section: newSec
-              }
-            }
-          }
-        });
-      });
+    }
+    if (!targetClass) {
+      return errorResponse(res, 'Destination class was not found. Please select an existing class from the class list.', 404);
     }
 
-    // Execute atomic bulkWrite operation for high performance (< 2 sec for 1000+ students)
-    if (bulkOps.length > 0) {
-      await Student.bulkWrite(bulkOps, { ordered: true });
-    }
-
-    // Update Class Collections (remove from old class docs, add to target class doc)
-    if (oldClassIds.length > 0) {
-      await Promise.all(
-        oldClassIds.map(oldId =>
-          Class.findByIdAndUpdate(oldId, {
-            $pull: { students: { $in: studentIds } }
-          })
-        )
-      );
-    }
-
-    await Class.findByIdAndUpdate(targetClass._id, {
-      $addToSet: { students: { $each: studentIds } }
+    const { migrateStudents } = require('../services/studentMigrationService');
+    const adminUser = req.user || {};
+    const result = await migrateStudents({
+      studentIds,
+      targetClass,
+      targetSection,
+      rollMode,
+      effectiveDate,
+      adminUser,
+      ip: req.ip || req.headers['x-forwarded-for'] || req.socket?.remoteAddress || ''
     });
 
-    // Create Audit Log
-    const adminUser = req.user || {};
-    const adminName = adminUser.fullName || `${adminUser.firstName || ''} ${adminUser.lastName || ''}`.trim() || 'Admin';
-    const clientIp = req.ip || req.headers['x-forwarded-for'] || req.socket?.remoteAddress || '';
-
-    await StudentMigrationAuditLog.create({
-      performedBy: adminUser._id || targetClass._id,
-      adminName: adminName,
-      ip: clientIp,
-      oldClassName: oldClassDisplay,
-      oldSection: oldSectionDisplay,
-      newClassName: newClassName,
-      newSection: newSec,
-      studentCount: existingStudents.length,
-      rollMode: rollMode
-    }).catch(err => console.error('Failed to log student migration audit:', err));
-
-    return successResponse(res, {
-      migratedCount: existingStudents.length,
-      oldClassName: oldClassDisplay,
-      oldSection: oldSectionDisplay,
-      newClassName: newClassName,
-      newSection: newSec,
-      targetClassId: targetClass._id,
-      rollMode: rollMode
-    }, `Successfully migrated ${existingStudents.length} students from ${oldClassDisplay} to ${newClassName}`, 200);
-
+    const message = result.migratedCount
+      ? 'Successfully migrated ' + result.migratedCount + ' students to ' + result.newClassName
+      : 'Students are already assigned to the selected class and section';
+    return successResponse(res, result, message, 200);
   } catch (error) {
     next(error);
   }
@@ -602,6 +581,8 @@ module.exports = {
   createStudent,
   updateStudent,
   deleteStudent,
+  permanentlyDeleteStudent,
   getLatestAdmissionStats,
+  getNextRollNumberPreview,
   bulkMigrateStudents,
 };

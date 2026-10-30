@@ -16,6 +16,8 @@ import api from "../services/api";
 import { useToast } from "../context/ToastContext";
 
 const SECTION_OPTIONS = ["A", "B", "C", "D", "E", "F"];
+const getTodayInSchoolTimezone = () =>
+  new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Kolkata" }).format(new Date());
 
 const BulkMigrationModal = ({
   isOpen,
@@ -30,7 +32,8 @@ const BulkMigrationModal = ({
   const [targetSection, setTargetSection] = useState("A");
   const [isCustomSection, setIsCustomSection] = useState(false);
   const [customSectionInput, setCustomSectionInput] = useState("");
-  const [rollMode, setRollMode] = useState("keep");
+  const [rollMode, setRollMode] = useState("assign_next");
+  const [effectiveDate, setEffectiveDate] = useState(getTodayInSchoolTimezone());
   const [loading, setLoading] = useState(false);
 
   // Auto-detect current Class and Section from selected students
@@ -71,7 +74,8 @@ const BulkMigrationModal = ({
       setTargetSection("A");
       setIsCustomSection(false);
       setCustomSectionInput("");
-      setRollMode("keep");
+      setRollMode("assign_next");
+      setEffectiveDate(getTodayInSchoolTimezone());
     }
   }, [isOpen]);
 
@@ -80,8 +84,9 @@ const BulkMigrationModal = ({
     const selectedCls = classes.find((c) => c._id === val || c.name === val);
     if (selectedCls) {
       setTargetClassName(selectedCls.name);
-      if (selectedCls.section) {
-        setTargetSection(selectedCls.section);
+      const nameSection = String(selectedCls.name || '').match(/-([A-Z0-9]+)$/i)?.[1];
+      if (selectedCls.section || nameSection) {
+        setTargetSection(String(selectedCls.section || nameSection).toUpperCase());
       }
     } else {
       setTargetClassName(val);
@@ -113,7 +118,8 @@ const BulkMigrationModal = ({
         targetClassId: targetClassId || undefined,
         targetClassName: targetClassName,
         targetSection: finalSection,
-        rollMode: rollMode,
+        rollMode,
+        effectiveDate,
       });
 
       if (res.data.success) {
@@ -183,7 +189,7 @@ const BulkMigrationModal = ({
           <Button
             onClick={handleConfirmMigration}
             loading={loading}
-            disabled={loading || (!targetClassName && !targetClassId)}
+            disabled={loading || (!targetClassName && !targetClassId) || !effectiveDate}
             className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-6 py-2.5 rounded-xl shadow-lg shadow-indigo-200 transition-all flex items-center gap-2"
           >
             <CheckCircle2 size={18} />
@@ -290,6 +296,31 @@ const BulkMigrationModal = ({
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <label
               className={`p-3.5 border rounded-2xl cursor-pointer flex items-start gap-3 transition-all ${
+                rollMode === "assign_next"
+                  ? "border-indigo-500 bg-indigo-50/40 shadow-sm"
+                  : "border-slate-200 hover:border-slate-300 bg-white"
+              }`}
+            >
+              <input
+                type="radio"
+                name="rollMode"
+                value="assign_next"
+                checked={rollMode === "assign_next"}
+                onChange={() => setRollMode("assign_next")}
+                className="mt-0.5 text-indigo-600 focus:ring-indigo-500"
+              />
+              <div>
+                <span className="text-xs font-black text-slate-800 block">
+                  Auto Assign Next Roll Number
+                </span>
+                <span className="text-[10px] text-slate-500 font-medium">
+                  Assign the next available number in the destination class. Existing students' rolls stay unchanged.
+                </span>
+              </div>
+            </label>
+
+            <label
+              className={`p-3.5 border rounded-2xl cursor-pointer flex items-start gap-3 transition-all ${
                 rollMode === "keep"
                   ? "border-indigo-500 bg-indigo-50/40 shadow-sm"
                   : "border-slate-200 hover:border-slate-300 bg-white"
@@ -305,39 +336,32 @@ const BulkMigrationModal = ({
               />
               <div>
                 <span className="text-xs font-black text-slate-800 block">
-                  Keep Existing Roll Numbers
+                  Keep Existing Roll Number
                 </span>
                 <span className="text-[10px] text-slate-500 font-medium">
-                  Retain student's current roll numbers unchanged.
-                </span>
-              </div>
-            </label>
-
-            <label
-              className={`p-3.5 border rounded-2xl cursor-pointer flex items-start gap-3 transition-all ${
-                rollMode === "regenerate"
-                  ? "border-indigo-500 bg-indigo-50/40 shadow-sm"
-                  : "border-slate-200 hover:border-slate-300 bg-white"
-              }`}
-            >
-              <input
-                type="radio"
-                name="rollMode"
-                value="regenerate"
-                checked={rollMode === "regenerate"}
-                onChange={() => setRollMode("regenerate")}
-                className="mt-0.5 text-indigo-600 focus:ring-indigo-500"
-              />
-              <div>
-                <span className="text-xs font-black text-slate-800 block">
-                  Auto Generate Roll Numbers
-                </span>
-                <span className="text-[10px] text-slate-500 font-medium">
-                  Sort alphabetically by name & assign 1, 2, 3...
+                  Allowed only when the roll number is not already used in the destination class.
                 </span>
               </div>
             </label>
           </div>
+        </div>
+
+        {/* Effective Date */}
+        <div className="space-y-2">
+          <label className="block text-xs font-black text-slate-500 uppercase tracking-wider">
+            Migration Effective From
+          </label>
+          <input
+            type="date"
+            max={getTodayInSchoolTimezone()}
+            value={effectiveDate}
+            onChange={(event) => setEffectiveDate(event.target.value)}
+            required
+            className="w-full sm:w-1/2 h-11 px-3 rounded-xl border border-slate-200 bg-white text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          />
+          <p className="text-[10px] text-slate-500">
+            Attendance up to the previous day remains in the old class. Choose today or an earlier school day on which attendance has not already been marked in the old class. Future-dated transfers are not supported.
+          </p>
         </div>
 
         {/* Dynamic Visual Preview Panel */}
@@ -369,9 +393,10 @@ const BulkMigrationModal = ({
             <strong className="font-black text-amber-950 block mb-0.5">
               ERP Isolation Safety Guarantee:
             </strong>
-            This action ONLY updates Class, Section, and Roll Numbers.
-            Attendance, Fee Records, Examination Marks, Timetables, and
-            Historical Reports remain 100% untouched.
+            The student's enrollment timeline will be saved with old and new class,
+            section, and roll number details. Existing attendance records, fee
+            transactions, and examination marks will not be moved or overwritten.
+            Historical attendance will remain attached to the class where it was marked.
           </div>
         </div>
       </form>

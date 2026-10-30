@@ -4,6 +4,7 @@ import {
   Plus,
   Search,
   Edit2,
+  UserMinus,
   Trash2,
   Eye,
   Filter,
@@ -38,6 +39,7 @@ const StudentList = () => {
   const [classes, setClasses] = useState([]);
   const [loading, setLoading] = useState(false);
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
+  const [isPermanentDeleteConfirmOpen, setIsPermanentDeleteConfirmOpen] = useState(false);
   const [isBulkMigrateOpen, setIsBulkMigrateOpen] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState(null);
 
@@ -675,6 +677,26 @@ const StudentList = () => {
     }
   };
 
+  const handlePermanentDelete = async () => {
+    if (!selectedStudent?._id) return;
+    setIsProcessing(true);
+    try {
+      const res = await api.delete(`/students/${selectedStudent._id}/permanent`);
+      if (res.data.success) {
+        addToast("Student profile permanently deleted; history preserved");
+        setSelectedIds((ids) => ids.filter((id) => id !== selectedStudent._id));
+        fetchStudents();
+      }
+    } catch (error) {
+      console.error("Permanent student deletion error:", error);
+      addToast(error.response?.data?.message || "Failed to permanently delete student", "error");
+    } finally {
+      setIsPermanentDeleteConfirmOpen(false);
+      setIsProcessing(false);
+      setSelectedStudent(null);
+    }
+  };
+
   // Client side quick search
   const searchedStudents = students.filter((s) => {
     const fullName = (s.fullName || "").toLowerCase();
@@ -1066,8 +1088,20 @@ const StudentList = () => {
                                     setSelectedStudent(student);
                                     setIsDeleteConfirmOpen(true);
                                   }}
-                                  className="p-2 text-gray-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all"
-                                  title="Delete Record"
+                                  className="p-2 text-gray-400 hover:text-amber-700 hover:bg-amber-50 rounded-xl transition-all"
+                                  title="Deactivate Student (keep history)"
+                                >
+                                  <UserMinus size={16} />
+                                </button>
+                              )}
+                              {user?.role === "admin" && (
+                                <button
+                                  onClick={() => {
+                                    setSelectedStudent(student);
+                                    setIsPermanentDeleteConfirmOpen(true);
+                                  }}
+                                  className="p-2 text-gray-400 hover:text-white hover:bg-rose-600 rounded-xl transition-all"
+                                  title="Permanently Delete Profile (preserve history)"
                                 >
                                   <Trash2 size={16} />
                                 </button>
@@ -1346,11 +1380,23 @@ const StudentList = () => {
                               setSelectedStudent(student);
                               setIsDeleteConfirmOpen(true);
                             }}
-                            className="p-2 text-gray-400 hover:text-rose-600 bg-gray-50 hover:bg-rose-50 rounded-xl transition-all"
-                            title="Unenroll"
+                            className="p-2 text-gray-400 hover:text-amber-700 bg-gray-50 hover:bg-amber-50 rounded-xl transition-all"
+                            title="Deactivate Student (keep history)"
                           >
-                            <Trash2 size={15} />
+                            <UserMinus size={15} />
                           </button>
+                        )}
+                        {user?.role === "admin" && (
+                          <AppIconButton
+                            size="xs"
+                            variant="ghost"
+                            icon={Trash2}
+                            title="Permanently delete profile; preserve history"
+                            onClick={() => {
+                              setSelectedStudent(student);
+                              setIsPermanentDeleteConfirmOpen(true);
+                            }}
+                          />
                         )}
                       </div>
                     </div>
@@ -1496,8 +1542,16 @@ const StudentList = () => {
         onClose={() => setIsDeleteConfirmOpen(false)}
         onConfirm={handleDelete}
         loading={isProcessing}
-        title="Unenroll Student"
-        message={`Are you sure you want to deactivate ${selectedStudent?.fullName}'s active enrollment records? They will be marked as inactive.`}
+        title="Deactivate Student"
+        message={`Are you sure you want to deactivate ${selectedStudent?.fullName}? The student profile and all history will remain saved. You can activate the student again later.`}
+      />
+      <ConfirmModal
+        isOpen={isPermanentDeleteConfirmOpen}
+        onClose={() => setIsPermanentDeleteConfirmOpen(false)}
+        onConfirm={handlePermanentDelete}
+        loading={isProcessing}
+        title="Permanently Delete Student Profile"
+        message={`This will permanently delete ${selectedStudent?.fullName}'s student profile. Attendance, exam marks, fee ledgers, payment transactions and migration history will be preserved. This action cannot be undone. Continue?`}
       />
     </div>
   );

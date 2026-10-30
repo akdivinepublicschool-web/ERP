@@ -7,6 +7,7 @@
 const adminService = require('../services/adminService');
 const { successResponse, errorResponse } = require('../utils/apiResponse');
 const { createNotification } = require('../utils/notificationHelper');
+const { getTodayDateString } = require('../utils/dateUtils');
 const Class = require('../models/Class');
 const Teacher = require('../models/Teacher');
 
@@ -120,6 +121,7 @@ const createStudent = async (req, res, next) => {
 const getStudentsByClass = async (req, res, next) => {
   try {
     const { classId } = req.params;
+    const { date } = req.query;
     if (req.user.role === 'teacher') {
       const timetableService = require('../services/timetableService');
       const isAssigned = await timetableService.isTeacherAssignedToClass(req.user._id, classId);
@@ -127,7 +129,7 @@ const getStudentsByClass = async (req, res, next) => {
         return errorResponse(res, 'You are not authorized to view students of this class', 403);
       }
     }
-    const students = await adminService.getStudentsByClass(classId);
+    const students = await adminService.getStudentsByClass(classId, date);
     return successResponse(res, students, 'Students fetched successfully');
   } catch (error) {
     next(error);
@@ -309,11 +311,7 @@ const getAttendanceAnalytics = async (req, res, next) => {
 
     let dateStr = date;
     if (!dateStr) {
-      const today = new Date();
-      const year = today.getFullYear();
-      const month = String(today.getMonth() + 1).padStart(2, '0');
-      const day = String(today.getDate()).padStart(2, '0');
-      dateStr = `${year}-${month}-${day}`;
+      dateStr = getTodayDateString();
     }
 
     const instituteId = req.user?.institute || req.user?.instituteId || null;
