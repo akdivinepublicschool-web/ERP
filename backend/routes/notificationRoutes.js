@@ -1,16 +1,24 @@
 const express = require('express');
 const router = express.Router();
-const { protect } = require('../middleware/auth');
+const { protect, isAdmin } = require('../middleware/auth');
 const {
   getNotifications,
   getUnreadCount,
   markAsRead,
   markAllAsRead,
   deleteNotification,
+  registerDevice,
+  unregisterDevice,
+  getPushStatus,
+  sendBroadcast,
 } = require('../controllers/notificationController');
 
-// All routes require authentication
 router.use(protect);
+
+router.get('/push-status', getPushStatus);
+router.post('/devices', registerDevice);
+router.delete('/devices', unregisterDevice);
+router.post('/broadcast', isAdmin, sendBroadcast);
 
 router.get('/', getNotifications);
 router.get('/unread-count', getUnreadCount);

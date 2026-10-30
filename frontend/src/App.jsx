@@ -38,6 +38,7 @@ const AdmissionRequestForm = lazy(() => import("./pages/admission/AdmissionReque
 const AdmissionRequestDetails = lazy(() => import("./pages/admission/AdmissionRequestDetails"));
 const AdmissionDirectForm = lazy(() => import("./pages/admission/AdmissionDirectForm"));
 const HolidayManagement = lazy(() => import("./pages/admin/HolidayManagement"));
+const NotificationCenter = lazy(() => import("./pages/admin/NotificationCenter"));
 const TeacherHomework = lazy(() => import("./pages/teacher/TeacherHomework"));
 const AdminHomework = lazy(() => import("./pages/admin/AdminHomework"));
 const MarksEntry = lazy(() => import("./pages/MarksEntry"));
@@ -466,6 +467,17 @@ function App() {
                 <ProtectedRoute allowedRoles={["admin"]}>
                   <Layout>
                     <HolidayManagement />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/admin/notifications"
+              element={
+                <ProtectedRoute allowedRoles={["admin"]}>
+                  <Layout>
+                    <NotificationCenter />
                   </Layout>
                 </ProtectedRoute>
               }

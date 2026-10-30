@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Bell, CheckCheck, Inbox, RefreshCw, Trash2 } from "lucide-react";
+import EnablePushNotifications from "./EnablePushNotifications";
 import api from "../services/api";
 import { cn } from "../utils/cn";
 
@@ -166,6 +167,8 @@ const NotificationDropdown = () => {
               )}
             </div>
           </div>
+
+          <EnablePushNotifications />
 
           {/* Notifications List */}
           <div className="max-h-80 overflow-y-auto custom-scrollbar">

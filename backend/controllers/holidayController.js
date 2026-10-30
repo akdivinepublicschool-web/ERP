@@ -1,5 +1,8 @@
 const holidayService = require('../services/holidayService');
 const Announcement = require('../models/Announcement');
+const Notification = require('../models/Notification');
+const User = require('../models/User');
+const { sendPushToUsers } = require('../services/pushNotificationService');
 const { successResponse, errorResponse } = require('../utils/apiResponse');
 
 const createHoliday = async (req, res, next) => {
@@ -27,6 +30,25 @@ const createHoliday = async (req, res, next) => {
         content: `School will remain closed for ${targetStr} on ${dateStr} due to ${data.name}.`,
         createdBy: req.user._id
       });
+      // Notify active staff accounts when a holiday applies to teachers or everyone.
+      if (['Teachers', 'Both'].includes(data.applicableTo || 'Both')) {
+        const recipients = await User.find({ role: { $in: ['admin', 'teacher'] }, isActive: true }).select('_id');
+        const recipientIds = recipients.map((user) => user._id);
+        if (recipientIds.length) {
+          const title = 'School Holiday: ' + data.name;
+          const message = `School will remain closed for ${targetStr} on ${dateStr} due to ${data.name}.`;
+          await Notification.insertMany(recipientIds.map((recipient) => ({
+            recipient, sender: req.user._id, title, message,
+            type: data.type === 'Emergency Closure' ? 'error' : 'warning',
+            link: '/admin/holidays', isRead: false,
+          })));
+          try {
+            await sendPushToUsers(recipientIds, { title, message, link: '/admin/holidays' }, { type: 'holiday', link: '/admin/holidays' });
+          } catch (pushError) {
+            console.error('Holiday saved, but phone push delivery failed:', pushError.message);
+          }
+        }
+      }
     } catch (err) {
       console.error('Failed to create holiday announcement:', err);
     }

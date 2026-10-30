@@ -154,6 +154,11 @@ const routeHeaderConfig = {
     title: "Admission Requests",
     description: "Review and process student admission applications.",
   },
+  "/admin/notifications": {
+    category: "System Administration",
+    title: "Notification Center",
+    description: "Send important school updates to teachers and staff phones.",
+  },
   "/admin/holidays": {
     category: "System Administration",
     title: "Holiday Calendar",
@@ -455,6 +460,13 @@ const Layout = ({ children }) => {
       roles: ["admin"],
     },
     {
+      id: "notifications",
+      path: "/admin/notifications",
+      label: "Notification Center",
+      icon: Bell,
+      roles: ["admin"],
+    },
+    {
       id: "holidays",
       path: "/admin/holidays",
       label: "Holiday Calendar",
@@ -684,6 +696,11 @@ const Layout = ({ children }) => {
             {/* Notification Dropdown */}
             <div className="relative flex items-center">
               <NotificationDropdown />
+              {user.role === "admin" && (
+                <Link to="/admin/notifications" className="hidden lg:inline-flex items-center gap-2 rounded-xl border border-orange-200 bg-orange-50 px-3 py-2 text-xs font-bold text-orange-700 hover:bg-orange-100 transition-colors">
+                  <Bell size={15} /> Send Notice
+                </Link>
+              )}
             </div>
 
             <div className="h-6 w-px bg-slate-200 hidden sm:block" />
