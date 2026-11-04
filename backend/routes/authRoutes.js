@@ -11,10 +11,11 @@ const express = require('express');
 const router = express.Router();
 const { register, login, logout, heartbeat, getMe } = require('../controllers/authController');
 const { protect } = require('../middleware/auth');
+const loginRateLimiter = require('../middleware/loginRateLimiter');
 
 // Public routes
 router.post('/register', register);
-router.post('/login', login);
+router.post('/login', loginRateLimiter, login);
 
 // Protected routes
 router.get('/me', protect, getMe);

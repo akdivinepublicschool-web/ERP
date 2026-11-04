@@ -56,7 +56,8 @@ const register = async (req, res, next) => {
  */
 const login = async (req, res, next) => {
   try {
-    const { email, password } = req.body;
+    const { password } = req.body;
+    const email = String(req.body?.email || '').trim().toLowerCase();
 
     // Validate input
     if (!email || !password) {
