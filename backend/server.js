@@ -123,6 +123,8 @@ app.use(cors({
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: process.env.NODE_ENV === 'production' ? (parseInt(process.env.RATE_LIMIT_MAX) || 100) : 10000,
+  // Admission requests are authenticated school workflows; exempt them from the general API limit.
+  skip: (req) => req.path.startsWith('/admission-requests'),
   message: { success: false, message: 'Too many requests, please try again after 15 minutes.' },
   standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
   legacyHeaders: false,  // Disable the `X-RateLimit-*` headers
