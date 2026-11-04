@@ -544,7 +544,7 @@ const Layout = ({ children }) => {
       {/* Sidebar (Desktop & Mobile Drawer) */}
       <aside
         className={cn(
-          "fixed inset-y-0 left-0 z-[70] md:sticky md:top-0 h-screen bg-slate-50/95 border-r border-slate-200/80 transition-all duration-200 ease-in-out flex flex-col shadow-xl md:shadow-none overflow-hidden shrink-0",
+          "fixed inset-y-0 left-0 z-[70] md:sticky md:top-0 h-screen h-[100dvh] max-h-[100dvh] bg-slate-50/95 border-r border-slate-200/80 transition-all duration-200 ease-in-out flex flex-col shadow-xl md:shadow-none overflow-hidden shrink-0",
           isSidebarOpen ? "md:w-[245px]" : "md:w-[68px]",
           isMobileMenuOpen
             ? "translate-x-0 w-[240px]"
@@ -578,7 +578,7 @@ const Layout = ({ children }) => {
         </div>
 
         {/* Navigation Menu */}
-        <nav className="flex-1 overflow-y-auto py-4 px-3 space-y-1.5 custom-scrollbar">
+        <nav className="flex-1 min-h-0 overflow-y-auto overscroll-contain touch-pan-y py-4 px-3 pb-[calc(1rem+env(safe-area-inset-bottom))] space-y-1.5 custom-scrollbar [-webkit-overflow-scrolling:touch]">
           {filteredMenu.map((item) => {
             const isActive = location.pathname === item.path;
             return (
